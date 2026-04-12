@@ -4,6 +4,7 @@
   "type": "module",
   "license": "MIT",
   "description": "Python Edition: Adaptive & Interactive Learning Assistant - Deployed on Vercel (Frontend) and Render (Backend)",
+  "deploymentTrigger": "2025-04-12T23:05:00Z",
   "engines": {
     "node": ">=18.18.0 <23.0.0"
   },
