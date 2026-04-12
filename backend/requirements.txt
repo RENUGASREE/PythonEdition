@@ -8,3 +8,5 @@ python-dotenv
 reportlab
 pillow
 psycopg2-binary
+gunicorn
+whitenoise
