@@ -91,7 +91,7 @@ cd PythonEdition
 4. Configure:
    - **Name**: `python-edition-backend`
    - **Runtime**: Python 3
-   - **Build Command**: `cd backend && pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate`
+   - **Build Command**: `cd backend && pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py create_superuser_env`
    - **Start Command**: `cd backend && gunicorn python_edition_django.wsgi:application`
 5. Add Environment Variables (see `DEPLOYMENT_ENV_VARIABLES.md`)
 6. Deploy!
