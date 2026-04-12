@@ -51,7 +51,7 @@ if not DEBUG:
 APPEND_SLASH = True
 
 ALLOWED_HOSTS = [
-    host.strip() for host in os.environ.get("ALLOWED_HOSTS", ".onrender.com,localhost,127.0.0.1").split(",") if host.strip()
+    host.strip() for host in os.environ.get("ALLOWED_HOSTS", ".onrender.com").split(",") if host.strip()
 ]
 
 
@@ -104,13 +104,6 @@ if cors_origins:
     CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins.split(",") if origin.strip()]
     # Also add to CSRF_TRUSTED_ORIGINS for admin panel access
     CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
-elif DEBUG:
-    CORS_ALLOWED_ORIGINS = [
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "http://localhost:3002",
-    ]
-    CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
 else:
     CORS_ALLOWED_ORIGINS = []
     # In production, add backend URL to CSRF_TRUSTED_ORIGINS for admin access
@@ -134,14 +127,8 @@ if csrf_origins:
     CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_origins.split(",") if origin.strip()]
 elif cors_origins:
     CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in cors_origins.split(",") if origin.strip()]
-elif DEBUG:
-    CSRF_TRUSTED_ORIGINS = [
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "http://localhost:3002",
-    ]
 else:
-    CSRF_TRUSTED_ORIGINS = []
+    CSRF_TRUSTED_ORIGINS = [backend_url]
 
 
 ROOT_URLCONF = 'python_edition_django.urls'
