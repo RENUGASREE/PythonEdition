@@ -171,7 +171,7 @@ if not os.getenv("DATABASE_URL") and os.getenv("DB_ENGINE"):
         "ENGINE": os.getenv("DB_ENGINE"),
         "NAME": os.getenv("DB_NAME", "python_edition_db"),
         "USER": os.getenv("DB_USER", "postgres"),
-        "PASSWORD": os.getenv("DB_PASSWORD") or ("The_renu@28" if DEBUG else ""),
+        "PASSWORD": os.getenv("DB_PASSWORD", ""),
         "HOST": os.getenv("DB_HOST", "localhost"),
         "PORT": os.getenv("DB_PORT", "5432"),
     }
