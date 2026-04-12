@@ -231,7 +231,7 @@ if not DEBUG:
     WHITENOISE_USE_FINDERS = True
     STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-    SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "true").strip().lower() in ("1", "true", "yes")
+    SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "false").strip().lower() in ("1", "true", "yes")
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
