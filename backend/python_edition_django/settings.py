@@ -98,14 +98,20 @@ MIDDLEWARE = [
 cors_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "")
 if cors_origins:
     CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins.split(",") if origin.strip()]
+    # Also add to CSRF_TRUSTED_ORIGINS for admin panel access
+    CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
 elif DEBUG:
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:3000",
         "http://localhost:3001",
         "http://localhost:3002",
     ]
+    CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
 else:
     CORS_ALLOWED_ORIGINS = []
+    # In production, add backend URL to CSRF_TRUSTED_ORIGINS for admin access
+    backend_url = os.environ.get("BACKEND_URL", "https://pythonedition.onrender.com")
+    CSRF_TRUSTED_ORIGINS = [backend_url]
 
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https://.*\.onrender\.com$",
