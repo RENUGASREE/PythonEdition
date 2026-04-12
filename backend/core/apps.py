@@ -36,13 +36,20 @@ class CoreConfig(AppConfig):
                     except Exception as e:
                         print(f"Superuser may already exist: {e}")
                 
-                # Seed platform data
+                # Seed platform data with complete curriculum
                 try:
-                    print("Seeding platform data...")
-                    call_command('seed_platform_data', verbosity=0)
-                    print("Platform data seeded successfully")
+                    print("Seeding complete curriculum data...")
+                    call_command('seed_curriculum_data', verbosity=0)
+                    print("Curriculum data seeded successfully")
                 except Exception as e:
-                    print(f"Data seeding may have already run: {e}")
+                    print(f"Curriculum seeding error, trying fallback: {e}")
+                    # Fallback to platform data if curriculum data fails
+                    try:
+                        print("Seeding platform data (fallback)...")
+                        call_command('seed_platform_data', verbosity=0)
+                        print("Platform data seeded successfully")
+                    except Exception as e2:
+                        print(f"Platform data seeding may have already run: {e2}")
                     
             except Exception as e:
                 print(f"Auto-startup error: {e}")
