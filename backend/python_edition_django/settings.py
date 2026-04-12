@@ -44,6 +44,10 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-dev-only")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", "true").strip().lower() in ("1", "true", "yes")
 
+# Temporarily force DEBUG to get detailed error messages
+if not DEBUG:
+    DEBUG = True
+
 APPEND_SLASH = True
 
 ALLOWED_HOSTS = [
