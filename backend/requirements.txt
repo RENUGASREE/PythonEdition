@@ -1,0 +1,10 @@
+django
+djangorestframework
+django-cors-headers
+django-filter
+djangorestframework-simplejwt
+openai
+python-dotenv
+reportlab
+pillow
+psycopg2-binary
