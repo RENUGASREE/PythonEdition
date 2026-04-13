@@ -800,6 +800,39 @@ class ModuleViewSet(viewsets.ModelViewSet):
                     diff_map[target.replace("-", "_")] = lvl
                 
         context["precalculated_difficulties"] = diff_map
+
+        # ── Pre-load ALL lessons grouped by module (eliminates N+1) ──────────
+        try:
+            from .adaptive import group_lessons_for_modules
+            all_module_ids = list(Module.objects.values_list("id", flat=True))
+            context["module_lessons_map"] = group_lessons_for_modules(all_module_ids)
+        except Exception as e:
+            logger.warning(f"Could not build module_lessons_map: {e}")
+            context["module_lessons_map"] = {}
+
+        # ── Pre-load completed lesson IDs for this user ───────────────────────
+        try:
+            from .adaptive import progress_user_id
+            uid = progress_user_id(user)
+            completed_ids = set(
+                UserProgress.objects.filter(user_id=uid, completed=True)
+                .values_list("lesson_id", flat=True)
+            )
+            context["completed_lesson_ids"] = completed_ids
+        except Exception as e:
+            logger.warning(f"Could not build completed_lesson_ids: {e}")
+            context["completed_lesson_ids"] = set()
+
+        # ── Pre-load prereq map from LessonProfile ────────────────────────────
+        try:
+            prereq_map = {}
+            for profile in LessonProfile.objects.only("lesson_id", "prerequisites"):
+                prereq_map[profile.lesson_id] = profile.prerequisites or []
+            context["lesson_prereq_map"] = prereq_map
+        except Exception as e:
+            logger.warning(f"Could not build lesson_prereq_map: {e}")
+            context["lesson_prereq_map"] = {}
+
         return context
 
     def get_queryset(self):

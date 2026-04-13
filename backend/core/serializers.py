@@ -262,33 +262,34 @@ class LessonSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if not request or not request.user.is_authenticated:
             return False
-        # Import here to avoid circular dependencies if any
-        from .views import _lesson_unlocked
-        return _lesson_unlocked(request.user, obj)
+        try:
+            from .views import _lesson_unlocked
+            return _lesson_unlocked(request.user, obj)
+        except Exception:
+            return True  # Fail open so lesson is accessible
 
     def get_completed(self, obj):
         request = self.context.get("request")
         if not request or not request.user.is_authenticated:
             return False
-        from .views import _progress_user_id, UserProgress
-        user_id = _progress_user_id(request.user)
-        return UserProgress.objects.filter(user_id=user_id, lesson_id=obj.id, completed=True).exists()
+        try:
+            from .views import _progress_user_id, UserProgress
+            user_id = _progress_user_id(request.user)
+            return UserProgress.objects.filter(user_id=user_id, lesson_id=obj.id, completed=True).exists()
+        except Exception:
+            return False
 
     def get_nextLessonId(self, obj):
         request = self.context.get("request")
         if not request or not request.user.is_authenticated:
             return None
-        from .views import _lesson_ids_for_user_module
-        allowed_ids = _lesson_ids_for_user_module(request.user, obj.module_id)
-        # ordered_lessons = list(Lesson.objects.filter(id__in=allowed_ids).order_by("order", "id"))
-        # Using a list comprehension to preserve order from allowed_ids if it's already sorted
-        # but _lesson_ids_for_user_module might not guarantee 'order' field sorting.
-        # Actually, let's just use the IDs in sequence as determined by the adaptive logic.
         try:
+            from .views import _lesson_ids_for_user_module
+            allowed_ids = _lesson_ids_for_user_module(request.user, obj.module_id)
             curr_idx = allowed_ids.index(obj.id)
             if curr_idx < len(allowed_ids) - 1:
                 return allowed_ids[curr_idx + 1]
-        except (ValueError, IndexError):
+        except Exception:
             pass
         return None
 
@@ -296,65 +297,91 @@ class LessonSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if not request or not request.user.is_authenticated:
             return None
-        from .views import _lesson_ids_for_user_module
-        allowed_ids = _lesson_ids_for_user_module(request.user, obj.module_id)
         try:
+            from .views import _lesson_ids_for_user_module
+            allowed_ids = _lesson_ids_for_user_module(request.user, obj.module_id)
             curr_idx = allowed_ids.index(obj.id)
             if curr_idx > 0:
                 return allowed_ids[curr_idx - 1]
-        except (ValueError, IndexError):
+        except Exception:
             pass
         return None
 
     def get_quizzes(self, obj):
         request = self.context.get("request")
         user = request.user if request and request.user.is_authenticated else None
-        
-        quizzes = Quiz.objects.filter(lesson_id=obj.id)
-        if not quizzes.exists():
-            # Fallback: Return a dynamic quiz if none exists in DB
-            from .services.ai_quiz_generator import generate_quiz_from_lesson
-            dynamic_questions = generate_quiz_from_lesson(obj)
-            return [{
-                "id": f"dynamic-quiz-{obj.id}", # String ID for fallback
-                "title": f"Lesson Checkpoint: {obj.title}",
-                "questions": [
-                    {
-                        "id": f"dynamic-ques-{obj.id}-{idx}", # String ID for fallback
-                        "text": q["question"],
-                        "options": [
-                            {
-                                "id": i,
-                                "text": opt,
-                                "correct": i == q.get("correct", -1)
-                            }
-                            for i, opt in enumerate(q["options"])
-                        ],
-                        "correct_option_idx": q["correct"],
-                        "points": 10
-                    } for idx, q in enumerate(dynamic_questions)
-                ],
-                "attempted": False,
-                "score": None,
-                "total_questions": len(dynamic_questions),
-            }]
+        try:
+            quizzes = Quiz.objects.filter(lesson_id=obj.id)
+            if not quizzes.exists():
+                # Fallback: Return a dynamic quiz if none exists in DB
+                from .services.ai_quiz_generator import generate_quiz_from_lesson
+                dynamic_questions = generate_quiz_from_lesson(obj)
+                return [{
+                    "id": f"dynamic-quiz-{obj.id}",
+                    "title": f"Lesson Checkpoint: {obj.title}",
+                    "questions": [
+                        {
+                            "id": f"dynamic-ques-{obj.id}-{idx}",
+                            "text": q["question"],
+                            "options": [
+                                {"id": i, "text": opt, "correct": i == q.get("correct", -1)}
+                                for i, opt in enumerate(q["options"])
+                            ],
+                            "correct_option_idx": q["correct"],
+                            "points": 10,
+                        } for idx, q in enumerate(dynamic_questions)
+                    ],
+                    "attempted": False,
+                    "score": None,
+                    "total_questions": len(dynamic_questions),
+                }]
 
-        quiz_data = []
-        for quiz in quizzes:
-            attempt = None
-            if user:
-                attempt = QuizAttempt.objects.filter(user=user, quiz=quiz).first()
-            
-            questions = Question.objects.filter(quiz_id=quiz.id)
-            quiz_data.append({
-                "id": quiz.id,
-                "title": quiz.title,
-                "questions": QuestionSerializer(questions, many=True).data,
-                "attempted": attempt is not None,
-                "score": attempt.score if attempt else None,
-                "total_questions": attempt.total_questions if attempt else None,
-            })
-        return quiz_data
+            quiz_data = []
+            for quiz in quizzes:
+                attempt = None
+                if user:
+                    try:
+                        attempt = QuizAttempt.objects.filter(user=user, quiz=quiz).first()
+                    except Exception:
+                        pass
+                questions = Question.objects.filter(quiz_id=quiz.id)
+                quiz_data.append({
+                    "id": quiz.id,
+                    "title": quiz.title,
+                    "questions": QuestionSerializer(questions, many=True).data,
+                    "attempted": attempt is not None,
+                    "score": attempt.score if attempt else None,
+                    "total_questions": attempt.total_questions if attempt else None,
+                })
+            return quiz_data
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Error in get_quizzes for lesson {obj.id}: {e}")
+            # Fallback to dynamic quiz so the page isn't blank
+            try:
+                from .services.ai_quiz_generator import generate_quiz_from_lesson
+                dynamic_questions = generate_quiz_from_lesson(obj)
+                return [{
+                    "id": f"dynamic-quiz-{obj.id}",
+                    "title": f"Lesson Checkpoint: {obj.title}",
+                    "questions": [
+                        {
+                            "id": f"dynamic-ques-{obj.id}-{idx}",
+                            "text": q["question"],
+                            "options": [
+                                {"id": i, "text": opt, "correct": i == q.get("correct", -1)}
+                                for i, opt in enumerate(q["options"])
+                            ],
+                            "correct_option_idx": q["correct"],
+                            "points": 10,
+                        } for idx, q in enumerate(dynamic_questions)
+                    ],
+                    "attempted": False,
+                    "score": None,
+                    "total_questions": len(dynamic_questions),
+                }]
+            except Exception:
+                return []
 
     def get_challenges(self, obj):
         _CHALLENGE_FIELDS = ('id', 'lesson_id', 'title', 'description', 'initial_code', 'solution_code', 'test_cases', 'points', 'difficulty')
