@@ -41,6 +41,29 @@ class CoreConfig(AppConfig):
                     print("Seeding 10-module curriculum structure...")
                     call_command('seed_curriculum', verbosity=0)
                     print("10-module curriculum structure seeded successfully")
+                    
+                    # Hydrate detailed content for all modules
+                    print("Hydrating detailed lesson content for all modules...")
+                    hydrate_commands = [
+                        'hydrate_module1', 'hydrate_module1_b', 'hydrate_module1_extra',
+                        'hydrate_module2', 'hydrate_module2_b',
+                        'hydrate_module3', 'hydrate_module3_b',
+                        'hydrate_module4', 'hydrate_module4_b',
+                        'hydrate_module5', 'hydrate_module5_b',
+                        'hydrate_module6', 'hydrate_module6_b',
+                        'hydrate_module7', 'hydrate_module7_b',
+                        'hydrate_module8', 'hydrate_module8_b',
+                        'hydrate_module9', 'hydrate_module9_b',
+                        'hydrate_module10', 'hydrate_module10_b',
+                    ]
+                    for cmd in hydrate_commands:
+                        try:
+                            call_command(cmd, verbosity=0)
+                            print(f"Hydrated {cmd} successfully")
+                        except Exception as e:
+                            print(f"Hydrate {cmd} error (may have already run): {e}")
+                    print("Module hydration completed")
+                    
                 except Exception as e:
                     print(f"10-module curriculum seeding error, trying fallback: {e}")
                     # Fallback to curriculum data if 10-module fails
