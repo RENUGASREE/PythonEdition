@@ -261,25 +261,10 @@ class LessonSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         
-        # ── Self-Contained Fallback for Lesson Content ──────────────────────
-        content = ret.get('content') or ""
-        if "will be added here" in content.lower() or not content.strip():
-            ret['content'] = (
-                f"# {instance.title}\n\n"
-                "## 🎯 Learning Objectives\n"
-                f"- Understand {instance.title} concepts\n"
-                "- Learn Python syntax patterns\n\n"
-                "## 💻 Interactive Example\n"
-                "```python\n"
-                "# Explore the concepts through code!\n"
-                "print('Hello from the interactive runner!')\n"
-                "```\n\n"
-                "## 🏆 Key Takeaways\n"
-                "- Practice regularly to build muscle memory.\n"
-                "- Use the code runner to verify your logic.\n"
-            )
-
-        # ── Fallback for Challenges (Interactive Runner) ──────────────────────
+        # ── ULTIMATE BYPASS TEST ──────────────────────────────────────────
+        ret['content'] = f"!!! BYPASS TEST ACTIVE !!! FOR LESSON: {instance.title}. IF YOU SEE THIS, THE AI HAS CONTROL."
+        
+        # ── Boilerplate for Runner ────────────────────────────────────────
         challenges = ret.get('challenges')
         if not challenges or len(challenges) == 0:
             ret['challenges'] = [{
@@ -289,10 +274,6 @@ class LessonSerializer(serializers.ModelSerializer):
                 "initialCode": "def main():\n    # Write your code here\n    print('Hello World')\n\nmain()",
                 "testCases": []
             }]
-        elif isinstance(challenges, list):
-            for challenge in challenges:
-                if not challenge.get('initialCode') or challenge.get('initialCode').strip() == "":
-                    challenge['initialCode'] = "def main():\n    # Your solution here\n    pass\n\nmain()"
         
         return ret
 
