@@ -94,124 +94,120 @@ class Command(BaseCommand):
     def generate_beginner_content(self, title, topic, module):
         return f"""# {title}
 
+Welcome to your study of **{topic}** in Python! This foundational concept will help you build robust applications.
+
 ## 🎯 Learning Objectives
-- Understand the basics of {topic}
-- Learn fundamental concepts
-- Practice with simple examples
+- Master the basic syntax of **{topic}**
+- Learn how to implement simple logic safely
+- Practice with interactive examples
 
 ## 📚 Concept Overview
-{topic} is a fundamental concept in {module.replace('-', ' ').title()}. 
-This lesson introduces the core ideas you need to get started.
+In Python, **{topic}** allows you to structure your code efficiently. 
+For {module.replace('-', ' ').title()}, we focus on reliability and readability.
 
 ## 💻 Code Walkthrough
 ```python
-# Basic example for {topic}
-# Add your code here
-print("Learning {topic}")
+# A simple example of {topic}
+def showcase():
+    print(f"Starting our {topic} journey!")
+    # Implementation follows:
+    val = 10
+    print(f"Value is: {{val}}")
+
+if __name__ == "__main__":
+    showcase()
 ```
 
-## ⚠️ Common Pitfalls
-- Forgetting basic syntax
-- Not understanding the concept fully
-- Skipping practice exercises
-
 ## 🏆 Key Takeaways
-- {topic} is essential for Python programming
-- Practice regularly to master the concept
-- Build on this foundation for advanced topics
+- **{topic}** is a core pillar of Python.
+- Always aim for clean, readable code.
+- Practice makes perfect—try the interactive runner to your right!
 """
 
     def generate_intermediate_content(self, title, topic, module):
         return f"""# {title}
 
-## 🎯 Learning Objectives
-- Master {topic} at an intermediate level
-- Understand practical applications
-- Learn best practices
+## 🚀 Leveling up with {topic}
+Now that you know the basics, let's dive deeper into the optimization and patterns of **{topic}**.
 
-## 📚 Concept Overview
-{topic} in {module.replace('-', ' ').title()} involves deeper understanding 
-and practical implementation patterns.
-
-## 💻 Code Walkthrough
+## 💻 Intermediate Example
 ```python
-# Intermediate example for {topic}
-def process_{topic.lower().replace(' ', '_')}():
-    # Implementation details
-    pass
+# Optimized {topic} pattern
+def process_data(items):
+    # Using modern Python idioms for {topic}
+    result = [x * 2 for x in items if x is not None]
+    return result
+
+data = [1, 2, 3, None, 5]
+print(f"Processed {topic}: {{process_data(data)}}")
 ```
 
-## ⚠️ Common Pitfalls
-- Over-complicating simple solutions
-- Not considering edge cases
-- Ignoring performance implications
-
-## 🏆 Key Takeaways
-- {topic} requires practice and experience
-- Follow established patterns and conventions
-- Test your code thoroughly
+## ⚠️ Best Practices
+- Use list comprehensions where appropriate.
+- Modularize your {topic} logic into functions.
+- Handle edge cases and None types early.
 """
 
     def generate_pro_content(self, title, topic, module):
         return f"""# {title}
 
-## 🎯 Learning Objectives
-- Master advanced {topic} techniques
-- Understand internal implementation
-- Optimize for performance
+## 🏗️ Architectural {topic}
+At the Pro level, we analyze the performance characteristics and memory management of **{topic}**.
 
-## 📚 Concept Overview
-Advanced {topic} explores the internals and optimization strategies 
-for {module.replace('-', ' ').title()}.
+## 🔬 Deeper Dive
+How does the Python interpreter handle **{topic}** internally? We'll explore the bytecode and memory pointers for {module.replace('-', ' ').title()}.
 
-## 💻 Code Walkthrough
+## 💻 Professional implementation
 ```python
-# Advanced example for {topic}
-class {topic.replace(' ', '')}Advanced:
-    def __init__(self):
-        # Advanced implementation
-        pass
-    
-    def optimize(self):
-        # Performance optimization
-        pass
+import sys
+import time
+
+def optimized_logic():
+    # Specialized performance analysis for {topic}
+    start = time.perf_counter()
+    # Complex implementation here
+    end = time.perf_counter()
+    print(f"Execution time: {{end - start:.6f}}s")
+
+if __name__ == "__main__":
+    optimized_logic()
 ```
-
-## ⚠️ Common Pitfalls
-- Premature optimization
-- Ignoring readability for performance
-- Not profiling before optimizing
-
-## 🏆 Key Takeaways
-- {topic} at advanced level requires deep understanding
-- Balance performance with maintainability
-- Use profiling tools to guide optimization
 """
 
     def generate_question(self, topic, difficulty):
-        questions = {
-            "Beginner": [
-                f"What is the primary purpose of {topic}?",
-                f"Which statement is true about {topic}?",
-                f"How do you use {topic} in Python?",
-            ],
-            "Intermediate": [
-                f"What is the best practice when working with {topic}?",
-                f"Which method would you use for {topic}?",
-                f"How does {topic} affect program performance?",
-            ],
-            "Pro": [
-                f"What is the internal implementation of {topic}?",
-                f"Which optimization strategy works best for {topic}?",
-                f"How would you design a system using {topic}?",
-            ]
-        }
-        return random.choice(questions.get(difficulty, questions["Beginner"]))
+        beginner_questions = [
+            f"Which of these correctly defines {topic} in Python?",
+            f"What is the first step when implementing {topic}?",
+            f"How do you print a value related to {topic}?",
+        ]
+        intermediate_questions = [
+            f"What is the most efficient way to handle {topic} at scale?",
+            f"How does {topic} interact with other data structures?",
+            f"Which Python PEP discusses standards for {topic}?",
+        ]
+        pro_questions = [
+            f"Describe the memory complexity of your {topic} implementation.",
+            f"How would you refactor a legacy {topic} block for concurrency?",
+            f"What is the internal CPython opcode for {topic}?",
+        ]
+        
+        if difficulty == "Beginner":
+            return random.choice(beginner_questions)
+        elif difficulty == "Intermediate":
+            return random.choice(intermediate_questions)
+        return random.choice(pro_questions)
 
     def generate_options(self):
+        options = [
+            "Using the built-in function",
+            "Via a custom loop structure",
+            "By importing the 'math' module",
+            "All of the above"
+        ]
+        random.shuffle(options)
         return [
-            {"text": "Option A", "correct": True},
-            {"text": "Option B", "correct": False},
-            {"text": "Option C", "correct": False},
-            {"text": "Option D", "correct": False},
+            {"text": options[0], "correct": True},
+            {"text": options[1], "correct": False},
+            {"text": options[2], "correct": False},
+            {"text": options[3], "correct": False},
         ]
