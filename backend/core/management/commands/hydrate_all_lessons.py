@@ -75,22 +75,23 @@ class Command(BaseCommand):
                     )
                 
                 # Create challenge
-                Challenge.objects.filter(lesson_id=lesson.id).delete()
-                Challenge.objects.create(
+                Challenge.objects.update_or_create(
                     lesson_id=lesson.id,
-                    title=f"{topic} Challenge",
-                    description=f"Complete the {topic} exercise",
-                    initial_code="# Write your solution here\n",
-                    solution_code="# Solution placeholder\nprint('Challenge completed!')",
-                    test_cases=[{"input": "", "expected": "Challenge completed!"}],
-                    points=20,
+                    defaults={
+                        "title": f"{topic} Challenge",
+                        "description": f"Complete the {topic} exercise",
+                        "initial_code": "# Write your solution here\n",
+                        "solution_code": "# Solution placeholder\nprint('Challenge completed!')",
+                        "test_cases": [{"input": "", "expected": "Challenge completed!"}],
+                        "points": 20,
+                    }
                 )
                 
                 count += 1
                 if count % 50 == 0:
                     self.stdout.write(f"  Processed {count} lessons...")
         
-        self.stdout.write(self.style.SUCCESS(f"\n🎉 Hydrated {count} lessons with content, quizzes, and challenges"))
+        self.stdout.write(self.style.SUCCESS(f"\nHydrated {count} lessons with content, quizzes, and challenges"))
 
     def generate_beginner_content(self, title, topic, module):
         return f"""# {title}

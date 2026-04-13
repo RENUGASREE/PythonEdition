@@ -87,11 +87,11 @@ class Command(BaseCommand):
             )
             if created:
                 count += 1
-                self.stdout.write(f"  ✅ Created: {title}")
+                self.stdout.write(f"  Created: {title}")
             else:
                 obj.title = title
                 obj.description = desc
                 obj.save()
-                self.stdout.write(f"  🔄 Updated: {title}")
+                self.stdout.write(f"  Updated: {title}")
         
-        self.stdout.write(self.style.SUCCESS(f"\n🎉 Seeded {len(badges)} badges ({count} new)"))
+        self.stdout.write(self.style.SUCCESS(f"\nSeeded {len(badges)} badges ({count} new)"))
