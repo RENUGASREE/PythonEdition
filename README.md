@@ -2,7 +2,8 @@
 
 A premium, AI-enhanced adaptive learning platform designed to take users from Python basics to professional mastery. The platform features a sophisticated recommendation engine, real-time code execution, and high-fidelity analytics.
 
-**🌐 Live Demo:** [https://python-edition-adaptive-learning.vercel.app](https://python-edition-adaptive-learning.vercel.app)
+**🌐 Live Demo:** [https://python-edition.vercel.app](https://python-edition.vercel.app)
+**🔧 Backend API:** [https://pythonedition.onrender.com](https://pythonedition.onrender.com)
 
 ---
 
@@ -91,7 +92,7 @@ cd PythonEdition
 4. Configure:
    - **Name**: `python-edition-backend`
    - **Runtime**: Python 3
-   - **Build Command**: `cd backend && pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py create_superuser_env`
+   - **Build Command**: `cd backend && pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py create_superuser_env && python manage.py seed_platform_data`
    - **Start Command**: `cd backend && gunicorn python_edition_django.wsgi:application`
 5. Add Environment Variables (see `DEPLOYMENT_ENV_VARIABLES.md`)
 6. Deploy!
@@ -116,15 +117,15 @@ Required variables - see `DEPLOYMENT_ENV_VARIABLES.md` for complete list:
 ```bash
 DJANGO_SECRET_KEY=your-secret-key-here
 DJANGO_DEBUG=false
-ALLOWED_HOSTS=your-app.onrender.com,localhost
+ALLOWED_HOSTS=pythonedition.onrender.com,localhost
 DATABASE_URL=postgresql://user:pass@host:port/dbname
-CORS_ALLOWED_ORIGINS=https://your-app.vercel.app
+CORS_ALLOWED_ORIGINS=https://python-edition.vercel.app
 OPENAI_API_KEY=your-openai-key
 ```
 
 #### Frontend (Vercel)
 ```bash
-VITE_API_BASE_URL=https://your-backend.onrender.com/api
+VITE_API_BASE_URL=https://pythonedition.onrender.com/api
 ```
 
 ### Post-Deployment Steps
@@ -132,13 +133,13 @@ VITE_API_BASE_URL=https://your-backend.onrender.com/api
    ```bash
    cd backend && python manage.py createsuperuser
    ```
-2. **Load Initial Data**:
+2. **Load Initial Data** (if not done in build):
    ```bash
-   cd backend && python manage.py loaddata curriculum_data.json
+   cd backend && python manage.py seed_platform_data
    ```
 3. **Test API Endpoints**:
-   - Health Check: `https://your-backend.onrender.com/api/health/`
-   - Admin Panel: `https://your-backend.onrender.com/admin/`
+   - Health Check: `https://pythonedition.onrender.com/api/health/`
+   - Admin Panel: `https://pythonedition.onrender.com/admin/`
 
 ### Monitoring & Maintenance
 - **Backend Logs**: Check Render dashboard for application logs

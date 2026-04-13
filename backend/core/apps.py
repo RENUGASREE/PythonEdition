@@ -64,22 +64,42 @@ class CoreConfig(AppConfig):
                             print(f"Hydrate {cmd} error (may have already run): {e}")
                     print("Module hydration completed")
                     
-                except Exception as e:
-                    print(f"10-module curriculum seeding error, trying fallback: {e}")
-                    # Fallback to curriculum data if 10-module fails
+                    # Seed additional required data
+                    print("Seeding additional data (certificates, badges, challenges, diagnostic quiz)...")
                     try:
-                        print("Seeding curriculum data (fallback)...")
-                        call_command('seed_curriculum_data', verbosity=0)
-                        print("Curriculum data seeded successfully")
-                    except Exception as e2:
-                        print(f"Curriculum data seeding error, trying platform data: {e2}")
-                        # Fallback to platform data if curriculum data fails
-                        try:
-                            print("Seeding platform data (fallback)...")
-                            call_command('seed_platform_data', verbosity=0)
-                            print("Platform data seeded successfully")
-                        except Exception as e3:
-                            print(f"Platform data seeding may have already run: {e3}")
+                        call_command('seed_certificate_templates', verbosity=0)
+                        print("Certificate templates seeded successfully")
+                    except Exception as e:
+                        print(f"Certificate templates seeding error: {e}")
+                    
+                    try:
+                        call_command('seed_sample_badges', verbosity=0)
+                        print("Sample badges seeded successfully")
+                    except Exception as e:
+                        print(f"Sample badges seeding error: {e}")
+                    
+                    try:
+                        call_command('seed_sample_challenges', verbosity=0)
+                        print("Sample challenges seeded successfully")
+                    except Exception as e:
+                        print(f"Sample challenges seeding error: {e}")
+                    
+                    try:
+                        call_command('seed_placement_quiz', verbosity=0)
+                        print("Placement quiz seeded successfully")
+                    except Exception as e:
+                        print(f"Placement quiz seeding error: {e}")
+                    
+                    try:
+                        call_command('seed_structured_diagnostic_quiz', verbosity=0)
+                        print("Structured diagnostic quiz seeded successfully")
+                    except Exception as e:
+                        print(f"Structured diagnostic quiz seeding error: {e}")
+                    
+                    print("All data seeding completed")
+                    
+                except Exception as e:
+                    print(f"10-module curriculum seeding error: {e}")
                     
             except Exception as e:
                 print(f"Auto-startup error: {e}")
