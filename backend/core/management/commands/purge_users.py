@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.db import connection
-from core.models import Progress, QuizAttempt, Certificate, Recommendation, ChatMessage, UserMastery, DiagnosticAttempt
+from core.models import Progress, QuizAttempt, Certificate, ChatMessage, UserMastery, DiagnosticAttempt
 from gamification.models import UserBadge, XpEvent, Streak
 from evaluation.models import RecommendationEvent, RecommendationOutcome, RecommendationStrategyAssignment
 from recommendation.models import UserTopicBehavior, DifficultyShift

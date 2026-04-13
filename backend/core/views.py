@@ -1,10 +1,10 @@
 from django.contrib.auth import authenticate, login, logout
-from .models import User, Progress, QuizAttempt, Badge, Certificate, Recommendation, ChatMessage, Module, Lesson, UserProgress, Challenge, Quiz, Question, UserMastery, DiagnosticAttempt, DiagnosticQuestionMeta
+from .models import User, Progress, QuizAttempt, Certificate, ChatMessage, Module, Lesson, UserProgress, Challenge, Quiz, Question, UserMastery, DiagnosticAttempt, DiagnosticQuestionMeta
 from rest_framework import generics, permissions, viewsets, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import UserSerializer, ProgressSerializer, QuizAttemptSerializer, BadgeSerializer, CertificateSerializer, RecommendationSerializer, ChatMessageSerializer, ModuleSerializer, LessonSerializer, UserProgressSerializer, QuizSerializer, QuestionSerializer, ChallengeSerializer, UserMasterySerializer, DiagnosticAttemptSerializer, DiagnosticQuestionMetaSerializer
+from .serializers import UserSerializer, ProgressSerializer, QuizAttemptSerializer, CertificateSerializer, ChatMessageSerializer, ModuleSerializer, LessonSerializer, UserProgressSerializer, QuizSerializer, QuestionSerializer, ChallengeSerializer, UserMasterySerializer, DiagnosticAttemptSerializer, DiagnosticQuestionMetaSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -1030,14 +1030,6 @@ class ProgressViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-class RecommendationViewSet(viewsets.ModelViewSet):
-    queryset = Recommendation.objects.all()
-    serializer_class = RecommendationSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get_queryset(self):
-        return self.queryset.filter(user=self.request.user)
-
 class DiagnosticSubmitView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -1428,11 +1420,6 @@ class ChatMessageViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
 
-
-class BadgeViewSet(viewsets.ModelViewSet):
-    queryset = Badge.objects.all()
-    serializer_class = BadgeSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 class CertificateViewSet(viewsets.ModelViewSet):
     queryset = Certificate.objects.all()

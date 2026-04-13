@@ -2,7 +2,7 @@ import re
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
-from .models import User, Progress, QuizAttempt, Badge, Certificate, Recommendation, ChatMessage, Module, Lesson, Quiz, Question, Challenge, UserProgress, UserMastery, DiagnosticAttempt, DiagnosticQuestionMeta
+from .models import User, Progress, QuizAttempt, Certificate, ChatMessage, Module, Lesson, Quiz, Question, Challenge, UserProgress, UserMastery, DiagnosticAttempt, DiagnosticQuestionMeta
 from lessons.models import LessonProfile
 from django.db.models import Sum
 from datetime import timedelta
@@ -555,19 +555,9 @@ class QuizAttemptSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class BadgeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Badge
-        fields = '__all__'
-
 class CertificateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Certificate
-        fields = '__all__'
-
-class RecommendationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Recommendation
         fields = '__all__'
 
 

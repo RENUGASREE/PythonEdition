@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Progress, QuizAttempt, Badge, Certificate, Recommendation, ChatMessage, Module, Lesson, Quiz, Question, Challenge, UserProgress, UserMastery, DiagnosticAttempt, DiagnosticQuestionMeta
+from .models import User, Progress, QuizAttempt, Certificate, ChatMessage, Module, Lesson, Quiz, Question, Challenge, UserProgress, UserMastery, DiagnosticAttempt, DiagnosticQuestionMeta
 from .models import CertificateTemplate
 
 @admin.register(User)
@@ -45,17 +45,6 @@ class ProgressAdmin(admin.ModelAdmin):
 #     search_fields = ('attempt__user__username', 'question__text')
 #     raw_id_fields = ('attempt', 'question')
 
-@admin.register(Badge)
-class BadgeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description')
-    list_filter = ('name',)
-    search_fields = ('name', 'description')
-    actions_on_top = False
-    actions_on_bottom = True
-    fieldsets = (
-        (None, {'fields': ('name', 'description')}),
-    )
-
 @admin.register(Certificate)
 class CertificateAdmin(admin.ModelAdmin):
     list_display = ('user', 'module', 'issued_at')
@@ -69,20 +58,6 @@ class CertificateAdmin(admin.ModelAdmin):
         ('Details', {'fields': ('pdf_path', 'issued_at')}),
     )
     readonly_fields = ('issued_at',)
-
-@admin.register(Recommendation)
-class RecommendationAdmin(admin.ModelAdmin):
-    list_display = ('user', 'content', 'created_at')
-    list_filter = ('created_at',)
-    search_fields = ('user__username', 'content')
-    raw_id_fields = ('user',)
-    actions_on_top = False
-    actions_on_bottom = True
-    fieldsets = (
-        (None, {'fields': ('user', 'content')}),
-        ('Timestamps', {'fields': ('created_at',)}),
-    )
-    readonly_fields = ('created_at',)
 
 @admin.register(ChatMessage)
 class ChatMessageAdmin(admin.ModelAdmin):
