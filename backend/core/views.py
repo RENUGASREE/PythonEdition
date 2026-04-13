@@ -903,7 +903,14 @@ class LessonViewSet(viewsets.ModelViewSet):
             return Response({
                 "id": lesson.id,
                 "title": lesson.title,
-                "content": lesson.content or "",
+                "content": (
+                    (lambda l: (
+                        __import__("core.content_service", fromlist=["get_premium_content"]).get_premium_content(
+                            l.title, l.module_id, l.difficulty or "Beginner", l.order or 1
+                        )
+                    ))(lesson) if "will be added here" in (lesson.content or "").lower() or not (lesson.content or "").strip() 
+                    else (lesson.content or "")
+                ),
                 "moduleId": lesson.module_id,
                 "order": lesson.order,
                 "difficulty": lesson.difficulty,
