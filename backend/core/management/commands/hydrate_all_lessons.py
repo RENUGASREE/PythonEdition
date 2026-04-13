@@ -29,15 +29,24 @@ class Command(BaseCommand):
             self.stdout.write(f"Found {lessons.count()} lessons to hydrate")
             
             for lesson in lessons:
-                # Force update all lessons with proper content
+                # Force update PLACEHOLDER content
+                current_content = lesson.content or ""
+                is_placeholder = "will be added here" in current_content.lower() or not current_content.strip()
                 
                 # Generate content based on module, lesson number, and difficulty
-                module_id = lesson.module_id
-                module_key = module_id.replace("mod-", "")
+                module_id = str(lesson.module_id)
+                # Handle various module ID formats (mod-python-basics, python-basics, 1, etc.)
+                module_key = module_id.lower().replace("mod-", "").replace("_", "-")
+                if "basics" in module_key: module_key = "python-basics"
+                if "flow" in module_key: module_key = "control-flow"
+                if "loop" in module_key: module_key = "loops"
+                if "func" in module_key: module_key = "functions"
+                if "data" in module_key: module_key = "data-types"
+                if "oop" in module_key: module_key = "oop"
                 
                 # Get topic based on lesson order (1-10)
                 lesson_order = lesson.order if lesson.order else 1
-                topic_list = module_topics.get(module_key, ["General Topic"])
+                topic_list = module_topics.get(module_key, module_topics.get("python-basics"))
                 topic = topic_list[min(lesson_order - 1, len(topic_list) - 1)]
                 
                 # Generate content based on difficulty
