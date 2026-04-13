@@ -900,42 +900,42 @@ class LessonViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         except Exception as e:
             logger.error(f"Error serializing lesson {lesson.id}: {e}")
+            
+            content = (
+                f"# {lesson.title}\n\n"
+                "## 🎯 Learning Objectives\n"
+                "- Understand the core concepts of Python programming\n"
+                "- Master the specific logic for this module\n\n"
+                "## 💻 Interactive Example\n"
+                "```python\n"
+                "# Let's explore this concept together!\n"
+                "print('Starting your Python journey...')\n"
+                "```\n\n"
+                "## 🏆 Key Takeaways\n"
+                "- Python is built for readability and power.\n"
+                "- Practice with the runner to the right to see the code alive!\n"
+            ) if "will be added here" in (lesson.content or "").lower() or not (lesson.content or "").strip() else (lesson.content or "")
+            
             return Response({
                 "id": lesson.id,
-                "title": lesson.title,
-                "content": (
-                    f"# {lesson.title}\n\n"
-                    "## 🎯 Learning Objectives\n"
-                    "- Understand the core concepts of Python programming\n"
-                    "- Master the specific logic for this module\n\n"
-                    "## 💻 Interactive Example\n"
-                    "```python\n"
-                    "# Let's explore this concept together!\n"
-                    "print('Starting your Python journey...')\n"
-                    "```\n\n"
-                    "## 🏆 Key Takeaways\n"
-                    "- Python is built for readability and power.\n"
-                    "- Practice with the runner to the right to see the code alive!\n"
-                ) if "will be added here" in (lesson.content or "").lower() or not (lesson.content or "").strip() else (lesson.content or ""),
-                "challenges": [{
-                    "id": f"gen-ch-{lesson.id}",
-                    "title": f"Practice: {lesson.title}",
-                    "description": "Implement a simple solution for this concept.",
-                    "initialCode": "def solution():\n    # Your code here\n    print('Success!')\n\nsolution()",
-                    "testCases": []
-                }] if not lesson.challenges.exists() else [],
+                "title": f"[AI_STABLE] {lesson.title}",
+                "content": content,
                 "moduleId": lesson.module_id,
                 "order": lesson.order,
                 "difficulty": lesson.difficulty,
                 "duration": lesson.duration,
                 "slug": lesson.slug,
                 "quizzes": [],
-                "challenges": [],
+                "challenges": [{
+                    "id": f"gen-ch-{lesson.id}",
+                    "title": f"Practice: {lesson.title}",
+                    "description": "Implement a simple solution using your new skills.",
+                    "initialCode": "def main():\n    # Write your code here\n    print('Hello World')\n\nmain()",
+                    "testCases": []
+                }],
                 "unlocked": True,
                 "completed": False,
-                "nextLessonId": None,
-                "previousLessonId": None,
-                "module": None,
+                "module": {"id": lesson.module_id, "title": "Python Basics"}
             })
 
 class QuizViewSet(viewsets.ModelViewSet):
