@@ -29,9 +29,7 @@ class Command(BaseCommand):
             self.stdout.write(f"Found {lessons.count()} lessons to hydrate")
             
             for lesson in lessons:
-                # Skip if already has substantial content (not placeholder)
-                if lesson.content and len(lesson.content) > 200 and "will be added here" not in lesson.content:
-                    continue
+                # Force update all lessons with proper content
                 
                 # Generate content based on module, lesson number, and difficulty
                 module_id = lesson.module_id
