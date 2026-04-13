@@ -42,13 +42,21 @@ def setup_production():
     # 4. Seed Curriculum Data (Lessons, Modules)
     print("📚 Seeding Curriculum Data...")
     try:
-        # We removed reset=True to persist AI-generated content across deploys.
         call_command('seed_curriculum_data')
         print("✅ Curriculum data seeded.")
     except Exception as e:
         print(f"❌ Error seeding curriculum data: {e}")
 
-    # 4b. Update Challenges (Ensures high-quality code problems)
+    # 4b. AI Hydration & Nuclear Refurbish (THE FIX)
+    print("🧠 Starting AI Content Hydration and Nuclear Refurbish...")
+    try:
+        call_command('hydrate_all_lessons')
+        call_command('force_refurbish_db')
+        print("✅ AI Hydration and Nuclear Refurbish completed.")
+    except Exception as e:
+        print(f"❌ Error during AI Hydration: {e}")
+
+    # 5. Update Challenges (Ensures high-quality code problems)
     print("🏁 Updating Lesson Challenges...")
     try:
         call_command('update_lesson_challenges')
