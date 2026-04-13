@@ -258,6 +258,32 @@ class LessonSerializer(serializers.ModelSerializer):
         model = Lesson
         fields = ('id', 'moduleId', 'title', 'slug', 'content', 'order', 'difficulty', 'duration', 'quizzes', 'challenges', 'module', 'unlocked', 'completed', 'nextLessonId', 'previousLessonId')
 
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        
+        # ── Fallback for Lesson Content ───────────────────────────────────────
+        content = ret.get('content') or ""
+        if "will be added here" in content.lower() or not content.strip():
+            try:
+                from .content_service import get_premium_content
+                ret['content'] = get_premium_content(
+                    instance.title, 
+                    instance.module_id, 
+                    instance.difficulty or "Beginner",
+                    instance.order or 1
+                )
+            except Exception:
+                pass
+
+        # ── Fallback for Challenges (Interactive Runner) ──────────────────────
+        challenges = ret.get('challenges')
+        if isinstance(challenges, list):
+            for challenge in challenges:
+                if not challenge.get('initialCode') or challenge.get('initialCode').strip() == "":
+                    challenge['initialCode'] = "# Write your solution here\n# Use the 'Run Code' button to test it!\n\ndef main():\n    pass\n\nmain()"
+        
+        return ret
+
     def get_unlocked(self, obj):
         request = self.context.get("request")
         if not request or not request.user.is_authenticated:
