@@ -12,6 +12,12 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from pathlib import Path
+
+# --- AI STABLE BUILD FINGERPRINT ---
+print("\n" + "!"*40)
+print("!!! ACTIVE_STABLE_BUILD_ID: 9999 !!!")
+print("!"*40 + "\n")
+# -----------------------------------
 from datetime import timedelta
 
 from dotenv import load_dotenv
