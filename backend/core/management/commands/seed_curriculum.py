@@ -6,7 +6,7 @@ class Command(BaseCommand):
     help = "Seed modules and lessons (titles only) with understandable string IDs"
 
     def handle(self, *args, **kwargs):
-        self.stdout.write("Cleaning up modules and lessons...")
+        self.stdout.write("🧹 Cleaning up modules and lessons...")
         Module.objects.all().delete()
         Lesson.objects.all().delete()
 
@@ -25,7 +25,7 @@ class Command(BaseCommand):
 
         levels = ["Beginner", "Intermediate", "Pro"]
 
-        self.stdout.write(f"Seeding {len(modules_list)} modules and {len(modules_list) * 10 * 3} lessons...")
+        self.stdout.write(f"🚀 Seeding {len(modules_list)} modules and {len(modules_list) * 10 * 3} lessons...")
         
         for i, module_name in enumerate(modules_list, start=1):
             m_id = f"mod-{slugify(module_name)}"
@@ -51,4 +51,4 @@ class Command(BaseCommand):
                         duration=15
                     )
 
-        self.stdout.write(self.style.SUCCESS(f"Created {Module.objects.count()} Modules and {Lesson.objects.count()} Lessons"))
+        self.stdout.write(self.style.SUCCESS(f"✅ Created {Module.objects.count()} Modules and {Lesson.objects.count()} Lessons"))

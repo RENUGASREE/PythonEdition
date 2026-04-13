@@ -1,19 +1,23 @@
 from django.contrib.auth import authenticate, login, logout
-from .models import User, Progress, QuizAttempt, Certificate, ChatMessage, Module, Lesson, UserProgress, Challenge, Quiz, Question, UserMastery, DiagnosticAttempt, DiagnosticQuestionMeta
-from .services import check_and_award_module_certificate, check_and_award_lesson_badge, check_and_award_module_badge
+from .models import User, Progress, QuizAttempt, Badge, Certificate, Recommendation, ChatMessage, Module, Lesson, UserProgress, Challenge, Quiz, Question, UserMastery
 from rest_framework import generics, permissions, viewsets, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import UserSerializer, ProgressSerializer, QuizAttemptSerializer, CertificateSerializer, ChatMessageSerializer, ModuleSerializer, LessonSerializer, UserProgressSerializer, QuizSerializer, QuestionSerializer, ChallengeSerializer, UserMasterySerializer, DiagnosticAttemptSerializer, DiagnosticQuestionMetaSerializer
+from .serializers import UserSerializer, ProgressSerializer, QuizAttemptSerializer, BadgeSerializer, CertificateSerializer, RecommendationSerializer, ChatMessageSerializer, ModuleSerializer, LessonSerializer, UserProgressSerializer, QuizSerializer, QuestionSerializer, ChallengeSerializer, UserMasterySerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.utils import timezone
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import landscape, letter
+from reportlab.graphics.barcode import qr
+from reportlab.graphics.shapes import Drawing
+from reportlab.graphics import renderPDF
 from reportlab.lib.units import inch
+import math
 from assessments.services import log_assessment_interaction
 from lessons.models import LessonProfile
 from users.services import update_engagement
@@ -328,15 +332,20 @@ def _lesson_unlocked(user, lesson):
     return sequential_ok and _prerequisites_met(user, lesson.id)
 
 def _unlocked_module_ids(user):
-    if not _quiz_completed(user):
-        return []
     modules = list(Module.objects.all().order_by("order"))
     unlocked_ids = []
+    
+    quiz_done = _quiz_completed(user)
+    
     for module in modules:
-        # Skip modules that currently have no lessons configured so they don't
-        # block access to later modules that do have real content.
+        # Stop at subsequent modules if quiz isn't done
+        if not quiz_done and module.order > 1:
+            break
+            
+        # Skip modules that currently have no lessons configured
         if not Lesson.objects.filter(module_id=module.id).exists():
             continue
+            
         if _module_unlocked(user, module):
             unlocked_ids.append(module.id)
         else:
@@ -960,13 +969,6 @@ class UserProgressViewSet(viewsets.ModelViewSet):
                 if topic:
                     update_shift_outcome(user, topic, mastery_before, mastery_after)
                 
-                # Award lesson completion badge
-                check_and_award_lesson_badge(user, lesson_id)
-                
-                # Check for module completion and award certificate/badge
-                check_and_award_module_certificate(user, lesson.module_id, lesson.difficulty)
-                check_and_award_module_badge(user, lesson.module_id)
-                
                 # Logic to unlock the next lesson immediately
                 # Get lessons matching user's difficulty level for proper sequencing
                 target_difficulty = (lesson.difficulty or user.level or "Beginner").strip()
@@ -1038,81 +1040,13 @@ class ProgressViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-class DiagnosticSubmitView(APIView):
+class RecommendationViewSet(viewsets.ModelViewSet):
+    queryset = Recommendation.objects.all()
+    serializer_class = RecommendationSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    def post(self, request):
-        quiz_id = request.data.get("quizId")
-        answers = request.data.get("answers", [])
-        if not quiz_id or not isinstance(answers, list):
-            return Response({"message": "quizId and answers are required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        questions = list(Question.objects.filter(quiz_id=quiz_id))
-        if not questions:
-            return Response({"message": "Quiz not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        answers_map = {}
-        for answer in answers:
-            q_id = answer.get("questionId")
-            selected_index = answer.get("selectedIndex")
-            if q_id is not None:
-                # Convert to string to match Question.id (which is a CharField)
-                answers_map[str(q_id)] = selected_index
-
-        module_totals = {}
-        module_correct = {}
-        total_questions = 0
-        correct_answers = 0
-
-        for question in questions:
-            # question.id is already a string
-            meta = DiagnosticQuestionMeta.objects.filter(question_id=question.id).first()
-            if not meta:
-                continue
-            module_tag = meta.module_tag
-            options = question.options or []
-            correct_index = None
-            for idx, opt in enumerate(options):
-                if opt.get("correct"):
-                    correct_index = idx
-                    break
-            total_questions += 1
-            module_totals[module_tag] = module_totals.get(module_tag, 0) + 1
-            selected_index = answers_map.get(question.id)
-            if selected_index is not None and correct_index is not None and int(selected_index) == int(correct_index):
-                correct_answers += 1
-                module_correct[module_tag] = module_correct.get(module_tag, 0) + 1
-
-        if total_questions == 0:
-            return Response({"message": "No diagnostic questions available"}, status=status.HTTP_400_BAD_REQUEST)
-
-        module_scores = {}
-        for module_tag, total in module_totals.items():
-            score = (module_correct.get(module_tag, 0) / total) * 100
-            module_scores[module_tag] = round(score, 2)
-
-        overall_score = round((correct_answers / total_questions) * 100, 2)
-
-        DiagnosticAttempt.objects.create(
-            user=request.user,
-            quiz_id=quiz_id,
-            module_scores=module_scores,
-            overall_score=overall_score,
-        )
-
-        for module_tag, score in module_scores.items():
-            module = Module.objects.filter(title__iexact=module_tag).first()
-            if module:
-                update_user_mastery(request.user, module.id, score, "diagnostic")
-        request.user.diagnostic_completed = True
-        request.user.has_taken_quiz = True
-        request.user.save(update_fields=["diagnostic_completed", "has_taken_quiz"])
-
-        return Response({
-            "moduleScores": module_scores,
-            "overallScore": overall_score,
-            "masteryVector": request.user.mastery_vector or {},
-        })
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
 
 class MasteryUpdateView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -1429,6 +1363,11 @@ class ChatMessageViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(user=self.request.user)
 
 
+class BadgeViewSet(viewsets.ModelViewSet):
+    queryset = Badge.objects.all()
+    serializer_class = BadgeSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
 class CertificateViewSet(viewsets.ModelViewSet):
     queryset = Certificate.objects.all()
     serializer_class = CertificateSerializer
@@ -1441,6 +1380,10 @@ class CertificateDownloadView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, module_id):
+        from reportlab.lib import colors
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import letter, landscape
+
         user = request.user
         module = Module.objects.filter(id=module_id).first()
         if module:
@@ -1454,13 +1397,6 @@ class CertificateDownloadView(APIView):
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="certificate_{user.username}_{module_id}.pdf"'
 
-        # Set up PDF canvas
-        from reportlab.lib import colors
-        from reportlab.lib.pagesizes import landscape, letter
-        from reportlab.pdfbase import pdfmetrics
-        from reportlab.pdfbase.ttfonts import TTFont
-        
-        # Use landscape for certificate
         p = canvas.Canvas(response, pagesize=landscape(letter))
         width, height = landscape(letter)
 
@@ -1514,9 +1450,9 @@ class CertificateDownloadView(APIView):
         p.drawCentredString(width / 2.0, height - 220, "This certification is proudly presented to")
 
         # Student Name
+        full_name = f"{user.first_name} {user.last_name}".strip() or user.username
         p.setFillColor(gold)
         p.setFont("Times-Bold", 48)
-        full_name = f"{user.first_name} {user.last_name}".strip() or user.username or user.email
         p.drawCentredString(width / 2.0, height - 300, full_name.upper())
         
         # Underline for name
@@ -1546,24 +1482,10 @@ class CertificateDownloadView(APIView):
         p.setFillColor(colors.gray)
         p.drawString(80, 85, f"Issued on: {certificate.issued_at.strftime('%B %d, %Y')}")
 
-        # Footer Center: QR Code and ID
-        cert_id = f"PY-CERT-{module_id}-{user.id}-{certificate.issued_at.year}"
-        from reportlab.graphics.barcode import qr
-        from reportlab.graphics.shapes import Drawing
-        from reportlab.graphics import renderPDF
-
-        # Create QR Code
-        qr_code = qr.QrCodeWidget(f"https://python-edition.app/verify/{cert_id}")
-        qr_drawing = Drawing(80, 80)
-        qr_drawing.add(qr_code)
-        
-        # Draw the QR code
-        qr_x, qr_y = width / 2.0 - 40, 80
-        renderPDF.draw(qr_drawing, p, qr_x, qr_y)
-
+        # Footer Center ID
+        cert_id = str(certificate.id)
         p.setFillColor(colors.gray)
         p.setFont("Helvetica", 6)
-        p.drawCentredString(width / 2.0, 75, "Scan to Verify Certificate")
         p.drawCentredString(width / 2.0, 65, f"ID: {cert_id}")
         p.setFont("Times-Italic", 8)
         p.drawCentredString(width / 2.0, 50, "Python Edition Adaptive Learning Platform")
@@ -1603,15 +1525,14 @@ class CertificateDownloadView(APIView):
         for i, char in enumerate(chars):
             angle = 90 - (i * angle_step)  # Start from top (90 degrees)
             p.saveState()
+            # Move to center, rotate, move to radius
             p.translate(center_x, center_y)
             p.rotate(angle)
             p.drawString(0, radius, char)
             p.restoreState()
 
         p.showPage()
-
         p.save()
-
 
         return response
 
@@ -1782,3 +1703,20 @@ class ModuleQuizView(APIView):
                 quiz_id__in=Quiz.objects.filter(lesson_id__in=lesson_ids)
             ).count()
         })
+
+class CertificateVerifyView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request, code):
+        try:
+            cert = Certificate.objects.get(verification_code=code)
+            return Response({
+                "valid": True,
+                "user": f"{cert.user.first_name} {cert.user.last_name}" if cert.user.first_name else cert.user.username,
+                "module": cert.module,
+                "issued_at": cert.issued_at,
+                "code": str(cert.verification_code)
+            })
+        except Certificate.DoesNotExist:
+            return Response({"valid": False, "message": "Certificate not found"}, status=status.HTTP_404_NOT_FOUND)
+

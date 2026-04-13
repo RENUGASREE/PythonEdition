@@ -16,7 +16,7 @@ MODULE_ID = "mod-python-basics"
 
 LESSONS = {
     # ── Lesson 1: Hello World ───────────────────────────────────────────────
-    "les-python-basics-1-beginner": {
+    "m1-1-python-setup-first-program-beginner-beginner": {
         "title": "Hello World — Your First Python Program",
         "content": """# Hello World — Your First Python Program
 
@@ -100,7 +100,7 @@ Have fun!""",
         },
     },
 
-    "les-python-basics-1-intermediate": {
+    "m1-1-python-setup-first-program-intermediate-intermediate": {
         "title": "Python Execution Model & print() Deep Dive",
         "content": """# Python Execution Model & print() Deep Dive
 
@@ -183,7 +183,7 @@ print(f"Student: {name} scored {score}%")   # Student: Renu scored 98%
         },
     },
 
-    "les-python-basics-1-pro": {
+    "m1-1-python-setup-first-program-pro-pro": {
         "title": "Python Internals: Bytecode, GIL & Execution Pipeline",
         "content": """# Python Internals: Bytecode, GIL & Execution Pipeline
 
@@ -270,7 +270,7 @@ dis.dis(greet)
     },
 
     # ── Lesson 2: Variables ─────────────────────────────────────────────────
-    "les-python-basics-2-beginner": {
+    "m1-2-variables-beginner-beginner": {
         "title": "Variables & Assignment",
         "content": """# Variables & Assignment
 
@@ -361,7 +361,7 @@ print(a, b)  # 20 10
         },
     },
 
-    "les-python-basics-2-intermediate": {
+    "m1-2-variables-intermediate-intermediate": {
         "title": "Variable Scope, References & Memory",
         "content": """# Variable Scope, References & Memory
 
@@ -462,7 +462,7 @@ lst[0] = 9   # ✓ lists are mutable
         },
     },
 
-    "les-python-basics-2-pro": {
+    "m1-2-variables-pro-pro": {
         "title": "Dynamic Typing, Type Interning & Descriptors",
         "content": """# Dynamic Typing, Type Interning & Descriptors
 
@@ -592,18 +592,18 @@ class Command(BaseCommand):
 
                 # Create challenge
                 ch = data["challenge"]
-                Challenge.objects.update_or_create(
+                Challenge.objects.filter(lesson_id=lesson_id).delete()
+                Challenge.objects.create(
+                    id=f"ch-{lesson_id}",
                     lesson_id=lesson_id,
-                    defaults={
-                        "title": ch["title"],
-                        "description": ch["description"],
-                        "initial_code": ch["initial_code"],
-                        "solution_code": ch["solution_code"],
-                        "test_cases": ch["test_cases"],
-                        "points": 20,
-                    }
+                    title=ch["title"],
+                    description=ch["description"],
+                    initial_code=ch["initial_code"],
+                    solution_code=ch["solution_code"],
+                    test_cases=ch["test_cases"],
+                    points=20,
                 )
                 count += 1
                 self.stdout.write(f"  OK {lesson_id}")
 
-        self.stdout.write(self.style.SUCCESS(f"\nHydrated {count} lessons in Module 1"))
+        self.stdout.write(self.style.SUCCESS(f"\nSUCCESS Hydrated {count} lessons in Module 1"))

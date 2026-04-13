@@ -42,48 +42,5 @@ class CoreConfig(AppConfig):
                 if not Lesson.objects.exists():
                     call_command("seed_curriculum_data")
                     logger.info("Seeded curriculum data on startup")
-                    
-                    # Hydrate detailed content for all modules using high-quality content
-                    logger.info("Hydrating detailed lesson content...")
-                    hydrate_commands = [
-                        'hydrate_module1', 'hydrate_module1_b',
-                        'hydrate_module2', 'hydrate_module2_b',
-                        'hydrate_module3', 'hydrate_module3_b',
-                        'hydrate_module4', 'hydrate_module4_b',
-                        'hydrate_module5', 'hydrate_module5_b',
-                        'hydrate_module6', 'hydrate_module6_b',
-                        'hydrate_module7', 'hydrate_module7_b',
-                        'hydrate_module8', 'hydrate_module8_b',
-                        'hydrate_module9', 'hydrate_module9_b',
-                        'hydrate_module10', 'hydrate_module10_b',
-                    ]
-                    for cmd in hydrate_commands:
-                        try:
-                            call_command(cmd, verbosity=0)
-                            logger.info("Hydrated %s successfully", cmd)
-                        except Exception as e:
-                            logger.warning("Hydrate %s error: %s", cmd, e)
-                    
-                    # Seed additional data (certificates, badges, diagnostic quiz)
-                    try:
-                        call_command('seed_expanded_certificates', verbosity=0)
-                        logger.info("Seeded expanded certificates")
-                    except Exception as e:
-                        logger.warning("Certificate seeding error: %s", e)
-                    
-                    try:
-                        call_command('seed_expanded_badges', verbosity=0)
-                        logger.info("Seeded expanded badges")
-                    except Exception as e:
-                        logger.warning("Badge seeding error: %s", e)
-                    
-                    # Expanded diagnostic quiz - THIS IS THE DIFFERENCE from Python project
-                    try:
-                        call_command('seed_expanded_diagnostic_quiz', verbosity=0)
-                        logger.info("Seeded expanded diagnostic quiz")
-                    except Exception as e:
-                        logger.warning("Diagnostic quiz seeding error: %s", e)
-                    
-                    logger.info("All data seeding completed")
             except Exception as e:
                 logger.exception("Failed to seed curriculum data on startup: %s", e)

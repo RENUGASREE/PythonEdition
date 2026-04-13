@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import RegisterView, LoginView, UserProfileView, LogoutView, RunChallengeView, ProgressViewSet, QuizAttemptViewSet, CertificateViewSet, ChatMessageViewSet, ModuleViewSet, LessonViewSet, UserProgressViewSet, QuizViewSet, QuestionViewSet, ChallengeViewSet, MasteryUpdateView, AdaptiveRecommendationView, SubmitQuizView, AITutorView, CertificateDownloadView, ModuleQuizView
+from .views import RegisterView, LoginView, UserProfileView, LogoutView, RunChallengeView, ProgressViewSet, QuizAttemptViewSet, BadgeViewSet, CertificateViewSet, RecommendationViewSet, ChatMessageViewSet, ModuleViewSet, LessonViewSet, UserProgressViewSet, QuizViewSet, QuestionViewSet, ChallengeViewSet, MasteryUpdateView, AdaptiveRecommendationView, SubmitQuizView, AITutorView, CertificateDownloadView, ModuleQuizView, CertificateVerifyView
 
 router = DefaultRouter()
 router.register(r'modules', ModuleViewSet)
@@ -11,7 +11,9 @@ router.register(r'challenges', ChallengeViewSet)
 router.register(r'user-progress', UserProgressViewSet)
 router.register(r'progress', ProgressViewSet)
 router.register(r'quiz-attempts', QuizAttemptViewSet)
+router.register(r'badges', BadgeViewSet)
 router.register(r'certificates', CertificateViewSet)
+router.register(r'recommendations', RecommendationViewSet)
 router.register(r'chatmessages', ChatMessageViewSet)
 
 urlpatterns = [
@@ -27,6 +29,7 @@ urlpatterns = [
     path('quizzes/<str:quiz_id>/submit/', SubmitQuizView.as_view(), name='submit_quiz'),
     path('ai-tutor/', AITutorView.as_view(), name='ai_tutor'),
     path('certificates/<str:module_id>/download/', CertificateDownloadView.as_view(), name='certificate_download'),
+    path('verify/certificate/<uuid:code>/', CertificateVerifyView.as_view(), name='certificate_verify'),
     path('modules/<str:module_id>/quiz/', ModuleQuizView.as_view(), name='module_quiz'),
     path('', include(router.urls)),
 ]

@@ -65,132 +65,132 @@ export default function Certificate() {
     ? new Date(certificate.issued_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) 
     : new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
-  const certId = certificate?.id || `PY-CERT-${module.id}-${user?.id || "DEMO"}-${new Date().getFullYear()}`;
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(window.location.href)}`;
-
   return (
     <Layout>
       <div className="max-w-5xl mx-auto py-12 px-4 space-y-8">
-        {/* Certificate Container */}
-        <div className="relative bg-white p-1 shadow-2xl overflow-hidden print:shadow-none print:p-0">
-          {/* Main Border Wrapper */}
-          <div className="border-[12px] border-[#1a2b4b] p-1">
-            <div className="border-2 border-[#c5a059] p-12 md:p-16 text-center space-y-10 bg-[#fdfdfd] relative">
-              
-              {/* Top Header */}
-              <div className="flex justify-between items-start">
-                <div className="w-24"></div> {/* Spacer */}
-                <div className="text-[#1a2b4b] text-2xl font-serif font-semibold tracking-wide">
-                  Python Edition
-                </div>
-                {/* AI Badge */}
-                <div className="bg-[#1a2b4b] text-white p-2 text-[10px] font-bold tracking-tighter leading-none border-b-4 border-[#c5a059]">
-                  <div className="border border-white/20 p-1">
-                    AI VERIFIED LEARNING
-                    <div className="text-[#c5a059] mt-0.5">SKILL LEVEL: PRO</div>
-                  </div>
-                </div>
+        <Card className="border-none shadow-2xl bg-white overflow-hidden relative">
+          {/* Certificate Background/Border */}
+          <div className="absolute inset-0 border-[16px] border-[#f8f9fa] pointer-events-none" />
+          <div className="absolute inset-4 border-2 border-[#1a2b4b] pointer-events-none" />
+          <div className="absolute inset-6 border border-[#c5a059] pointer-events-none" />
+
+          <CardContent className="p-16 relative z-10">
+            {/* Top Header */}
+            <div className="flex justify-between items-start mb-12">
+              <div className="text-center flex-1">
+                <h3 className="text-[#1a2b4b] font-serif text-2xl font-bold tracking-tight">Python Edition</h3>
               </div>
-
-              {/* Title Section */}
-              <div className="space-y-4 pt-4">
-                <h1 className="text-[#1a2b4b] text-4xl md:text-5xl lg:text-6xl font-serif font-bold tracking-tight uppercase whitespace-nowrap">
-                  Certificate of Achievement
-                </h1>
-                <p className="text-[#666] italic text-lg font-serif">
-                  This certification is proudly presented to
-                </p>
-              </div>
-
-              {/* Recipient Name */}
-              <div className="py-6">
-                <div className="inline-block border-b-2 border-[#c5a059] pb-2 min-w-[300px]">
-                  <span className="text-[#c5a059] text-5xl md:text-6xl font-serif font-medium uppercase tracking-wider px-8">
-                    {user?.firstName ? `${user.firstName} ${user.lastName || ""}` : (user?.username || user?.email || "Learner")}
-                  </span>
+              <div className="absolute top-12 right-12 bg-[#c5a059] p-0.5 rounded-sm shadow-sm">
+                <div className="bg-[#1a2b4b] px-3 py-1 text-[10px] font-bold text-white tracking-wider border border-[#c5a059]">
+                  AI VERIFIED LEARNING
                 </div>
-              </div>
-
-              {/* Description */}
-              <div className="space-y-6 pt-4">
-                <p className="text-[#666] text-lg font-serif">
-                  For successfully mastering the high-fidelity curriculum of
-                </p>
-                <h2 className="text-[#1a2b4b] text-3xl md:text-4xl font-serif font-bold tracking-wide">
-                  {module.title}
-                </h2>
-              </div>
-
-              {/* Footer Section */}
-              <div className="grid grid-cols-3 items-end pt-12 text-left">
-                {/* Left: Signature & Date */}
-                <div className="space-y-4">
-                  <div className="font-serif italic text-2xl text-[#1a2b4b] border-b border-[#ccc] pb-1 inline-block">
-                    Pythonized AI
-                  </div>
-                  <div className="text-[10px] font-bold text-[#1a2b4b] uppercase tracking-wider">
-                    Platform Director, Python Edition
-                  </div>
-                  <div className="text-xs text-[#666]">
-                    Issued on: {issueDate}
-                  </div>
-                </div>
-
-                {/* Center: QR & ID */}
-                <div className="flex flex-col items-center space-y-2">
-                  <div className="bg-white p-1 border border-gray-200">
-                    <img src={qrUrl} alt="Verification QR Code" className="w-20 h-20" />
-                  </div>
-                  <div className="text-[8px] text-[#999] uppercase tracking-tighter text-center">
-                    Scan to Verify Certificate<br />
-                    ID: {certId}
-                  </div>
-                  <div className="text-[10px] italic text-[#666] font-serif mt-2">
-                    Python Edition Adaptive Learning Platform
-                  </div>
-                </div>
-
-                {/* Right: Verified Seal */}
-                <div className="flex justify-end relative">
-                  <div className="relative w-32 h-32 flex items-center justify-center">
-                    {/* Seal Circular Text */}
-                    <div className="absolute inset-0 animate-[spin_20s_linear_infinite]">
-                      <svg className="w-full h-full" viewBox="0 0 100 100">
-                        {/* Outer Circle Covering everything */}
-                        <circle cx="50" cy="50" r="49" fill="none" stroke="#c5a059" strokeWidth="1" />
-                        <path id="seal-text-path" d="M 50, 50 m -39, 0 a 39,39 0 1,1 78,0 a 39,39 0 1,1 -78,0" fill="none" />
-                        <text className="text-[7px] font-bold fill-[#c5a059] uppercase tracking-[0.2em]">
-                          <textPath href="#seal-text-path" startOffset="0">
-                            AUTHENTIC • CERTIFIED • PYTHON EDITION • 
-                          </textPath>
-                        </text>
-                      </svg>
-                    </div>
-                    {/* Seal Inner Circle */}
-                    <div className="bg-[#1a2b4b] rounded-full w-20 h-20 flex items-center justify-center border-4 border-[#c5a059] shadow-inner z-10">
-                      <div className="text-white font-bold text-sm tracking-tighter border-y border-white/20 py-1 px-2">
-                        VERIFIED
-                      </div>
-                    </div>
-                  </div>
+                <div className="bg-[#c5a059] px-3 py-0.5 text-[9px] font-bold text-[#1a2b4b] text-center">
+                  SKILL LEVEL: {user?.level?.toUpperCase() || "PRO"}
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 print:hidden">
+            {/* Main Title */}
+            <div className="text-center mb-10">
+              <h1 className="text-[#1a2b4b] font-serif text-5xl font-extrabold tracking-[0.1em] uppercase">
+                Certificate of Achievement
+              </h1>
+            </div>
+
+            {/* Presentation Text */}
+            <div className="text-center mb-8">
+              <p className="text-[#4a5568] font-serif text-lg italic">This certification is proudly presented to</p>
+            </div>
+
+            {/* Student Name */}
+            <div className="text-center mb-12 relative max-w-2xl mx-auto">
+              <h2 className="text-[#c5a059] font-serif text-5xl font-bold uppercase tracking-wide py-4">
+                {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : (user?.firstName || user?.email?.split('@')[0] || "Learner")}
+              </h2>
+              <div className="h-0.5 bg-[#c5a059] w-full mt-2" />
+            </div>
+
+            {/* Achievement Description */}
+            <div className="text-center mb-6">
+              <p className="text-[#4a5568] font-serif text-lg">For successfully mastering the high-fidelity curriculum of</p>
+            </div>
+
+            {/* Topic/Module */}
+            <div className="text-center mb-16">
+              <h3 className="text-[#1a2b4b] font-serif text-3xl font-bold">
+                {module.title}
+              </h3>
+            </div>
+
+            {/* Bottom Section: Signatures, QR, Seal */}
+            <div className="flex justify-between items-end mt-12 px-4 pb-4">
+              {/* Left: Signature */}
+              <div className="w-1/3 text-left pl-4">
+                <div className="mb-2">
+                  <span className="font-serif text-2xl italic text-[#1a2b4b] border-b border-[#1a2b4b] pb-1 pr-8">
+                    Pythonized AI
+                  </span>
+                </div>
+                <div className="text-[10px] font-bold text-[#1a2b4b] uppercase tracking-wider">
+                  Platform Director, Python Edition
+                </div>
+                <div className="text-[10px] text-[#4a5568] mt-4">
+                  Issued on: {issueDate}
+                </div>
+              </div>
+
+              {/* Center: ID */}
+              <div className="w-1/3 flex flex-col items-center justify-center pt-8">
+                <div className="text-[9px] font-mono text-gray-500 uppercase tracking-widest mb-1">
+                  Verification ID
+                </div>
+                <div className="text-[10px] font-mono text-gray-700 font-bold">
+                  {certificate?.id || `PY-CERT-${module.id.toString().padStart(3, '0')}-${user?.id?.slice(0,8) || 'VERIFY'}`}
+                </div>
+              </div>
+
+              {/* Right: Seal */}
+              <div className="w-1/3 flex justify-end pr-8">
+                <div className="relative w-36 h-36 flex items-center justify-center">
+                  {/* Outer Seal Double Circle */}
+                  <div className="absolute inset-0 rounded-full border-[3px] border-[#c5a059] shadow-sm" />
+                  <div className="absolute inset-1 rounded-full border border-[#c5a059]" />
+                  
+                  {/* Inner Dark Circle */}
+                  <div className="absolute inset-5 rounded-full bg-[#0a192f] flex items-center justify-center shadow-inner border border-[#c5a059]/30">
+                    <div className="text-[11px] font-bold text-[#c5a059] tracking-[0.1em] uppercase">Verified</div>
+                  </div>
+
+                  {/* Circular Text (SVG) */}
+                  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
+                    <defs>
+                      <path id="circlePath" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none" />
+                    </defs>
+                    <text className="text-[5.5px] fill-[#c5a059] font-bold uppercase tracking-[0.25em]">
+                      <textPath xlinkHref="#circlePath" startOffset="0%">
+                        PYTHON EDITION • CERTIFIED • AUTHENTIC • 
+                      </textPath>
+                    </text>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Platform Subtitle */}
+            <div className="text-center mt-12 italic text-[#4a5568] font-serif text-sm">
+              Python Edition Adaptive Learning Platform
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex items-center justify-center gap-4 no-print">
           <Link href="/curriculum">
-            <Button variant="outline" className="w-full sm:w-auto">
-              Back to curriculum
-            </Button>
+            <Button variant="outline" className="px-8">Back to curriculum</Button>
           </Link>
-          <div className="flex gap-4 w-full sm:w-auto">
-            <Button variant="secondary" className="flex-1 sm:flex-initial" onClick={() => window.print()}>
-              Print Certificate
-            </Button>
-            <Button className="flex-1 sm:flex-initial" onClick={async () => {
+          <Button onClick={() => window.print()} className="px-8">Print certificate</Button>
+          <Button 
+            className="px-8 bg-[#1a2b4b] hover:bg-[#1a2b4b]/90"
+            onClick={async () => {
               try {
                 const accessToken = getAccessToken();
                 const response = await fetch(apiUrl(`/certificates/${moduleId}/download/`), {
@@ -201,24 +201,18 @@ export default function Certificate() {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = url;
-                a.download = `certificate_${user?.username || "learner"}_${moduleId}.pdf`;
+                a.download = `certificate_${user?.username || 'learner'}_${moduleId}.pdf`;
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
               } catch (err: any) {
                 console.error("Download failed:", err);
               }
-            }}>
-              Download PDF
-            </Button>
-          </div>
+            }}
+          >
+            Download PDF
+          </Button>
         </div>
-        
-        {!certificate && (
-          <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-md text-sm text-center print:hidden">
-            Note: This is a preview. Complete all lessons in this module to unlock the official certificate.
-          </div>
-        )}
       </div>
     </Layout>
   );

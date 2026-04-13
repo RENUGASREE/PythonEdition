@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -64,6 +65,7 @@ class Challenge(models.Model):
     initial_code = models.TextField()
     solution_code = models.TextField(blank=True, null=True)
     test_cases = models.JSONField()
+    required_code_patterns = models.JSONField(blank=True, null=True)
     points = models.IntegerField(blank=True, null=True)
     difficulty = models.TextField(blank=True, null=True)
 
@@ -96,6 +98,14 @@ class QuizAttempt(models.Model):
     class Meta:
         unique_together = ('user', 'quiz')
 
+# class QuestionAttempt(models.Model):
+#     attempt = models.ForeignKey('QuizAttempt', on_delete=models.CASCADE)
+#     question = models.ForeignKey('Question', on_delete=models.CASCADE)
+#     selected_option = models.IntegerField()
+#     is_correct = models.BooleanField()
+
+# --- End Quiz Models ---
+
 class Progress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     topic = models.CharField(max_length=255, db_index=True)
@@ -109,28 +119,28 @@ class UserMastery(models.Model):
     last_source = models.CharField(max_length=50, default="diagnostic")
     last_updated = models.DateTimeField(auto_now=True)
 
-class DiagnosticAttempt(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    quiz_id = models.CharField(max_length=255)
-    module_scores = models.JSONField(default=dict)
-    overall_score = models.FloatField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
 
-class DiagnosticQuestionMeta(models.Model):
-    question_id = models.CharField(max_length=255, unique=True)
-    module_tag = models.CharField(max_length=100)
-    difficulty = models.CharField(max_length=50)
+
+class Badge(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField()
 
 class Certificate(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     module = models.CharField(max_length=255)
     pdf_path = models.CharField(max_length=255)
     issued_at = models.DateTimeField(auto_now_add=True)
+    verification_code = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
 
 class CertificateTemplate(models.Model):
     code = models.CharField(max_length=100, unique=True)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
+
+class Recommendation(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
 class ChatMessage(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

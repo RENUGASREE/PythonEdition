@@ -8,13 +8,6 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
-
-DEPLOYMENT NOTES:
-- This configuration supports both development and production environments
-- Environment variables are loaded from .env files
-- Production deployment requires proper environment variables setup
-- CORS settings are configured for frontend-backend communication
-- Database uses PostgreSQL in production, SQLite in development
 """
 
 import os
@@ -44,14 +37,10 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-dev-only")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", "true").strip().lower() in ("1", "true", "yes")
 
-# Temporarily force DEBUG to get detailed error messages
-if not DEBUG:
-    DEBUG = True
-
 APPEND_SLASH = True
 
 ALLOWED_HOSTS = [
-    host.strip() for host in os.environ.get("ALLOWED_HOSTS", ".onrender.com").split(",") if host.strip()
+    host.strip() for host in os.environ.get("ALLOWED_HOSTS", ".onrender.com,localhost,127.0.0.1").split(",") if host.strip()
 ]
 
 
@@ -101,34 +90,39 @@ MIDDLEWARE = [
 
 cors_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "")
 if cors_origins:
-    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins.split(",") if origin.strip()]
-    # Also add to CSRF_TRUSTED_ORIGINS for admin panel access
-    CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
+    # Split by comma and strip whitespace AND trailing slashes
+    CORS_ALLOWED_ORIGINS = [origin.strip().rstrip("/") for origin in cors_origins.split(",") if origin.strip()]
+elif DEBUG:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+        "https://pythonedition.vercel.app",
+    ]
 else:
-    CORS_ALLOWED_ORIGINS = []
-    # In production, add backend URL to CSRF_TRUSTED_ORIGINS for admin access
-    backend_url = os.environ.get("BACKEND_URL", "https://pythonedition.onrender.com")
-    CSRF_TRUSTED_ORIGINS = [backend_url]
+    CORS_ALLOWED_ORIGINS = [
+        "https://pythonedition.vercel.app",
+        "https://pythonedition-dkte4qfo5-renuga-sree-ss-projects.vercel.app",
+    ]
 
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https://.*\.onrender\.com$",
+    r"^https://.*\.vercel\.app$",
+    r"^https://pythonedition-.*-ss-projects\.vercel\.app$",
 ]
 
-cors_allow_all = os.getenv("CORS_ALLOW_ALL_ORIGINS", "")
-if cors_allow_all:
-    CORS_ALLOW_ALL_ORIGINS = cors_allow_all.strip().lower() in ("1", "true", "yes")
-else:
-    CORS_ALLOW_ALL_ORIGINS = DEBUG
-
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-csrf_origins = os.environ.get("CSRF_TRUSTED_ORIGINS", "")
-if csrf_origins:
-    CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_origins.split(",") if origin.strip()]
-elif cors_origins:
-    CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in cors_origins.split(",") if origin.strip()]
-else:
-    CSRF_TRUSTED_ORIGINS = [backend_url]
+# Ensure no trailing slashes in CSRF_TRUSTED_ORIGINS either
+CSRF_TRUSTED_ORIGINS = [
+    "https://pythonedition.vercel.app",
+    "https://pythonedition-dkte4qfo5-renuga-sree-ss-projects.vercel.app",
+    "https://*.vercel.app",
+    "https://*.onrender.com",
+]
+CSRF_TRUSTED_ORIGINS = [origin.rstrip("/") for origin in CSRF_TRUSTED_ORIGINS]
+
 
 
 ROOT_URLCONF = 'python_edition_django.urls'
@@ -168,7 +162,7 @@ if not os.getenv("DATABASE_URL") and os.getenv("DB_ENGINE"):
         "ENGINE": os.getenv("DB_ENGINE"),
         "NAME": os.getenv("DB_NAME", "python_edition_db"),
         "USER": os.getenv("DB_USER", "postgres"),
-        "PASSWORD": os.getenv("DB_PASSWORD", ""),
+        "PASSWORD": os.getenv("DB_PASSWORD") or ("The_renu@28" if DEBUG else ""),
         "HOST": os.getenv("DB_HOST", "localhost"),
         "PORT": os.getenv("DB_PORT", "5432"),
     }
@@ -222,7 +216,7 @@ if not DEBUG:
     WHITENOISE_USE_FINDERS = True
     STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-    SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "false").strip().lower() in ("1", "true", "yes")
+    SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "true").strip().lower() in ("1", "true", "yes")
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
