@@ -96,14 +96,6 @@ class QuizAttempt(models.Model):
     class Meta:
         unique_together = ('user', 'quiz')
 
-# class QuestionAttempt(models.Model):
-#     attempt = models.ForeignKey('QuizAttempt', on_delete=models.CASCADE)
-#     question = models.ForeignKey('Question', on_delete=models.CASCADE)
-#     selected_option = models.IntegerField()
-#     is_correct = models.BooleanField()
-
-# --- End Quiz Models ---
-
 class Progress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     topic = models.CharField(max_length=255, db_index=True)
@@ -129,10 +121,6 @@ class DiagnosticQuestionMeta(models.Model):
     module_tag = models.CharField(max_length=100)
     difficulty = models.CharField(max_length=50)
 
-class Badge(models.Model):
-    name = models.CharField(max_length=255, unique=True)
-    description = models.TextField()
-
 class Certificate(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     module = models.CharField(max_length=255)
@@ -143,11 +131,6 @@ class CertificateTemplate(models.Model):
     code = models.CharField(max_length=100, unique=True)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-
-class Recommendation(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    content = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
 
 class ChatMessage(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
