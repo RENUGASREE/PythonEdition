@@ -261,26 +261,38 @@ class LessonSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         
-        # ── Fallback for Lesson Content ───────────────────────────────────────
+        # ── Self-Contained Fallback for Lesson Content ──────────────────────
         content = ret.get('content') or ""
         if "will be added here" in content.lower() or not content.strip():
-            try:
-                from .content_service import get_premium_content
-                ret['content'] = get_premium_content(
-                    instance.title, 
-                    instance.module_id, 
-                    instance.difficulty or "Beginner",
-                    instance.order or 1
-                )
-            except Exception:
-                pass
+            ret['content'] = (
+                f"# {instance.title}\n\n"
+                "## 🎯 Learning Objectives\n"
+                f"- Understand {instance.title} concepts\n"
+                "- Learn Python syntax patterns\n\n"
+                "## 💻 Interactive Example\n"
+                "```python\n"
+                "# Explore the concepts through code!\n"
+                "print('Hello from the interactive runner!')\n"
+                "```\n\n"
+                "## 🏆 Key Takeaways\n"
+                "- Practice regularly to build muscle memory.\n"
+                "- Use the code runner to verify your logic.\n"
+            )
 
         # ── Fallback for Challenges (Interactive Runner) ──────────────────────
         challenges = ret.get('challenges')
-        if isinstance(challenges, list):
+        if not challenges or len(challenges) == 0:
+            ret['challenges'] = [{
+                "id": f"gen-ch-{instance.id}",
+                "title": f"Practice: {instance.title}",
+                "description": "Implement a simple solution using your new skills.",
+                "initialCode": "def main():\n    # Write your code here\n    print('Hello World')\n\nmain()",
+                "testCases": []
+            }]
+        elif isinstance(challenges, list):
             for challenge in challenges:
                 if not challenge.get('initialCode') or challenge.get('initialCode').strip() == "":
-                    challenge['initialCode'] = "# Write your solution here\n# Use the 'Run Code' button to test it!\n\ndef main():\n    pass\n\nmain()"
+                    challenge['initialCode'] = "def main():\n    # Your solution here\n    pass\n\nmain()"
         
         return ret
 

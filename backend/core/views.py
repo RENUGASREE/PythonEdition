@@ -904,13 +904,26 @@ class LessonViewSet(viewsets.ModelViewSet):
                 "id": lesson.id,
                 "title": lesson.title,
                 "content": (
-                    (lambda l: (
-                        __import__("core.content_service", fromlist=["get_premium_content"]).get_premium_content(
-                            l.title, l.module_id, l.difficulty or "Beginner", l.order or 1
-                        )
-                    ))(lesson) if "will be added here" in (lesson.content or "").lower() or not (lesson.content or "").strip() 
-                    else (lesson.content or "")
-                ),
+                    f"# {lesson.title}\n\n"
+                    "## 🎯 Learning Objectives\n"
+                    "- Understand the core concepts of Python programming\n"
+                    "- Master the specific logic for this module\n\n"
+                    "## 💻 Interactive Example\n"
+                    "```python\n"
+                    "# Let's explore this concept together!\n"
+                    "print('Starting your Python journey...')\n"
+                    "```\n\n"
+                    "## 🏆 Key Takeaways\n"
+                    "- Python is built for readability and power.\n"
+                    "- Practice with the runner to the right to see the code alive!\n"
+                ) if "will be added here" in (lesson.content or "").lower() or not (lesson.content or "").strip() else (lesson.content or ""),
+                "challenges": [{
+                    "id": f"gen-ch-{lesson.id}",
+                    "title": f"Practice: {lesson.title}",
+                    "description": "Implement a simple solution for this concept.",
+                    "initialCode": "def solution():\n    # Your code here\n    print('Success!')\n\nsolution()",
+                    "testCases": []
+                }] if not lesson.challenges.exists() else [],
                 "moduleId": lesson.module_id,
                 "order": lesson.order,
                 "difficulty": lesson.difficulty,
