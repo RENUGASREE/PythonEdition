@@ -261,10 +261,27 @@ class LessonSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         
-        # ── ULTIMATE BYPASS TEST ──────────────────────────────────────────
-        ret['content'] = f"!!! BYPASS TEST ACTIVE !!! FOR LESSON: {instance.title}. IF YOU SEE THIS, THE AI HAS CONTROL."
-        
-        # ── Boilerplate for Runner ────────────────────────────────────────
+        # ── Zero-Dependency Premium Fallback ────────────────────────────────
+        content = ret.get('content') or ""
+        if "will be added here" in content.lower() or not content.strip():
+            ret['content'] = (
+                f"# {instance.title}\n\n"
+                "## 🎯 Learning Objectives\n"
+                f"- Master the fundamental concepts of {instance.title}\n"
+                "- Practice real-world Python implementations\n\n"
+                "## 💻 Interactive Guide\n"
+                "```python\n"
+                "# This is a live code example!\n"
+                "def start_lesson():\n"
+                "    print('Welcome to your learning journey!')\n\n"
+                "start_lesson()\n"
+                "```\n\n"
+                "## 🏆 Key Takeaways\n"
+                "- Consistency is the key to mastering Python.\n"
+                "- Use the runner on the right to test your code locally!\n"
+            )
+
+        # ── Boilerplate for Interactive Runner ──────────────────────────────
         challenges = ret.get('challenges')
         if not challenges or len(challenges) == 0:
             ret['challenges'] = [{
