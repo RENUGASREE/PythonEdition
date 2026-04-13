@@ -36,20 +36,27 @@ class CoreConfig(AppConfig):
                     except Exception as e:
                         print(f"Superuser may already exist: {e}")
                 
-                # Seed platform data with complete curriculum
+                # Seed platform data with complete 10-module curriculum
                 try:
-                    print("Seeding complete curriculum data...")
-                    call_command('seed_curriculum_data', verbosity=0)
-                    print("Curriculum data seeded successfully")
+                    print("Seeding 10-module curriculum structure...")
+                    call_command('seed_curriculum', verbosity=0)
+                    print("10-module curriculum structure seeded successfully")
                 except Exception as e:
-                    print(f"Curriculum seeding error, trying fallback: {e}")
-                    # Fallback to platform data if curriculum data fails
+                    print(f"10-module curriculum seeding error, trying fallback: {e}")
+                    # Fallback to curriculum data if 10-module fails
                     try:
-                        print("Seeding platform data (fallback)...")
-                        call_command('seed_platform_data', verbosity=0)
-                        print("Platform data seeded successfully")
+                        print("Seeding curriculum data (fallback)...")
+                        call_command('seed_curriculum_data', verbosity=0)
+                        print("Curriculum data seeded successfully")
                     except Exception as e2:
-                        print(f"Platform data seeding may have already run: {e2}")
+                        print(f"Curriculum data seeding error, trying platform data: {e2}")
+                        # Fallback to platform data if curriculum data fails
+                        try:
+                            print("Seeding platform data (fallback)...")
+                            call_command('seed_platform_data', verbosity=0)
+                            print("Platform data seeded successfully")
+                        except Exception as e3:
+                            print(f"Platform data seeding may have already run: {e3}")
                     
             except Exception as e:
                 print(f"Auto-startup error: {e}")
