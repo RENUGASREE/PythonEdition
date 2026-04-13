@@ -67,16 +67,16 @@ class CoreConfig(AppConfig):
                     # Seed additional required data
                     print("Seeding additional data (certificates, badges, challenges, diagnostic quiz)...")
                     try:
-                        call_command('seed_certificate_templates', verbosity=0)
-                        print("Certificate templates seeded successfully")
+                        call_command('seed_expanded_certificates', verbosity=0)
+                        print("Expanded certificate templates seeded successfully")
                     except Exception as e:
-                        print(f"Certificate templates seeding error: {e}")
+                        print(f"Expanded certificate templates seeding error: {e}")
                     
                     try:
-                        call_command('seed_sample_badges', verbosity=0)
-                        print("Sample badges seeded successfully")
+                        call_command('seed_expanded_badges', verbosity=0)
+                        print("Expanded badges seeded successfully")
                     except Exception as e:
-                        print(f"Sample badges seeding error: {e}")
+                        print(f"Expanded badges seeding error: {e}")
                     
                     try:
                         call_command('seed_sample_challenges', verbosity=0)
@@ -85,16 +85,10 @@ class CoreConfig(AppConfig):
                         print(f"Sample challenges seeding error: {e}")
                     
                     try:
-                        call_command('seed_placement_quiz', verbosity=0)
-                        print("Placement quiz seeded successfully")
+                        call_command('seed_expanded_diagnostic_quiz', verbosity=0)
+                        print("Expanded diagnostic quiz seeded successfully")
                     except Exception as e:
-                        print(f"Placement quiz seeding error: {e}")
-                    
-                    try:
-                        call_command('seed_structured_diagnostic_quiz', verbosity=0)
-                        print("Structured diagnostic quiz seeded successfully")
-                    except Exception as e:
-                        print(f"Structured diagnostic quiz seeding error: {e}")
+                        print(f"Expanded diagnostic quiz seeding error: {e}")
                     
                     print("All data seeding completed")
                     
