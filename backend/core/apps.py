@@ -42,22 +42,26 @@ class CoreConfig(AppConfig):
                     call_command('seed_curriculum', verbosity=0)
                     print("10-module curriculum structure seeded successfully")
                     
-                    # Hydrate detailed content for all modules (comprehensive)
-                    print("Hydrating detailed lesson content for all 300 lessons...")
-                    try:
-                        call_command('hydrate_all_lessons', verbosity=0)
-                        print("All lessons hydrated successfully")
-                    except Exception as e:
-                        print(f"Hydrate all lessons error: {e}")
-                    
-                    # Generate AI content for all lessons (uses fallback if no API key)
-                    print("Generating AI content for all lessons...")
-                    try:
-                        call_command('generate_ai_content', verbosity=0)
-                        print("AI content generation completed successfully")
-                    except Exception as e:
-                        print(f"AI content generation error: {e}")
-                    
+                    # Hydrate detailed content for all modules using high-quality content
+                    print("Hydrating detailed lesson content for all modules...")
+                    hydrate_commands = [
+                        'hydrate_module1', 'hydrate_module1_b',
+                        'hydrate_module2', 'hydrate_module2_b',
+                        'hydrate_module3', 'hydrate_module3_b',
+                        'hydrate_module4', 'hydrate_module4_b',
+                        'hydrate_module5', 'hydrate_module5_b',
+                        'hydrate_module6', 'hydrate_module6_b',
+                        'hydrate_module7', 'hydrate_module7_b',
+                        'hydrate_module8', 'hydrate_module8_b',
+                        'hydrate_module9', 'hydrate_module9_b',
+                        'hydrate_module10', 'hydrate_module10_b',
+                    ]
+                    for cmd in hydrate_commands:
+                        try:
+                            call_command(cmd, verbosity=0)
+                            print(f"Hydrate {cmd} successfully")
+                        except Exception as e:
+                            print(f"Hydrate {cmd} error (may have already run): {e}")
                     print("Module hydration completed")
                     
                     # Seed additional required data

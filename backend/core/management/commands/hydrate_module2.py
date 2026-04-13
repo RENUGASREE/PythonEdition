@@ -1077,12 +1077,17 @@ class Command(BaseCommand):
                         text=q["text"], type="mcq", options=q["options"], points=5,
                     )
                 ch = data["challenge"]
-                Challenge.objects.filter(lesson_id=lesson_id).delete()
-                Challenge.objects.create(
-                    lesson_id=lesson_id, title=ch["title"], description=ch["description"],
-                    initial_code=ch["initial_code"], solution_code=ch["solution_code"],
-                    test_cases=ch["test_cases"], points=20,
+                Challenge.objects.update_or_create(
+                    lesson_id=lesson_id,
+                    defaults={
+                        "title": ch["title"],
+                        "description": ch["description"],
+                        "initial_code": ch["initial_code"],
+                        "solution_code": ch["solution_code"],
+                        "test_cases": ch["test_cases"],
+                        "points": 20,
+                    }
                 )
                 count += 1
-                self.stdout.write(f"  ✅ {lesson_id}")
-        self.stdout.write(self.style.SUCCESS(f"\n🎉 Hydrated {count} lessons in Module 2 (1-5)"))
+                self.stdout.write(f"  OK {lesson_id}")
+        self.stdout.write(self.style.SUCCESS(f"\nHydrated {count} lessons in Module 2 (1-5)"))
