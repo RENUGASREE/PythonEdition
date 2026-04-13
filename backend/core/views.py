@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from .models import User, Progress, QuizAttempt, Certificate, ChatMessage, Module, Lesson, UserProgress, Challenge, Quiz, Question, UserMastery, DiagnosticAttempt, DiagnosticQuestionMeta
-from .services import check_and_award_module_certificate, check_and_award_lesson_badge, check_and_award_module_badge
+# Temporarily commented out to prevent backend crash during startup
+# from .services import check_and_award_module_certificate, check_and_award_lesson_badge, check_and_award_module_badge
 from rest_framework import generics, permissions, viewsets, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -961,11 +962,11 @@ class UserProgressViewSet(viewsets.ModelViewSet):
                     update_shift_outcome(user, topic, mastery_before, mastery_after)
                 
                 # Award lesson completion badge
-                check_and_award_lesson_badge(user, lesson_id)
+                # check_and_award_lesson_badge(user, lesson_id)
                 
                 # Check for module completion and award certificate/badge
-                check_and_award_module_certificate(user, lesson.module_id, lesson.difficulty)
-                check_and_award_module_badge(user, lesson.module_id)
+                # check_and_award_module_certificate(user, lesson.module_id, lesson.difficulty)
+                # check_and_award_module_badge(user, lesson.module_id)
                 
                 # Logic to unlock the next lesson immediately
                 # Get lessons matching user's difficulty level for proper sequencing
