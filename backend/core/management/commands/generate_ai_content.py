@@ -9,17 +9,20 @@ class Command(BaseCommand):
     help = "Generate lesson content using OpenAI API"
 
     def handle(self, *args, **options):
-        # Get OpenAI API key from environment
+        # Get OpenAI API key from environment (optional)
         api_key = os.environ.get('OPENAI_API_KEY')
-        if not api_key:
-            self.stdout.write(self.style.ERROR("OPENAI_API_KEY environment variable not set"))
-            return
+        use_ai = False
         
-        openai.api_key = api_key
+        if api_key:
+            openai.api_key = api_key
+            use_ai = True
+            self.stdout.write("Using OpenAI API for content generation")
+        else:
+            self.stdout.write("No API key found, using fallback content templates")
 
         # Get all lessons
         lessons = Lesson.objects.all()
-        self.stdout.write(f"Generating content for {lessons.count()} lessons using OpenAI...")
+        self.stdout.write(f"Generating content for {lessons.count()} lessons...")
         
         # Module topics for content generation
         module_topics = {
@@ -48,12 +51,21 @@ class Command(BaseCommand):
                 module_name = module_obj.title if module_obj else "Python"
                 
                 # Generate content based on difficulty
-                if difficulty == "Beginner":
-                    content = self.generate_beginner_content(lesson.title, topic, module_name)
-                elif difficulty == "Intermediate":
-                    content = self.generate_intermediate_content(lesson.title, topic, module_name)
+                if use_ai:
+                    if difficulty == "Beginner":
+                        content = self.generate_beginner_content(lesson.title, topic, module_name)
+                    elif difficulty == "Intermediate":
+                        content = self.generate_intermediate_content(lesson.title, topic, module_name)
+                    else:
+                        content = self.generate_pro_content(lesson.title, topic, module_name)
                 else:
-                    content = self.generate_pro_content(lesson.title, topic, module_name)
+                    # Use fallback content
+                    if difficulty == "Beginner":
+                        content = self.generate_fallback_beginner_content(lesson.title, topic, module_name)
+                    elif difficulty == "Intermediate":
+                        content = self.generate_fallback_intermediate_content(lesson.title, topic, module_name)
+                    else:
+                        content = self.generate_fallback_pro_content(lesson.title, topic, module_name)
                 
                 # Update lesson content
                 lesson.content = content

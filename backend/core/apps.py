@@ -49,6 +49,15 @@ class CoreConfig(AppConfig):
                         print("All lessons hydrated successfully")
                     except Exception as e:
                         print(f"Hydrate all lessons error: {e}")
+                    
+                    # Generate AI content for all lessons (uses fallback if no API key)
+                    print("Generating AI content for all lessons...")
+                    try:
+                        call_command('generate_ai_content', verbosity=0)
+                        print("AI content generation completed successfully")
+                    except Exception as e:
+                        print(f"AI content generation error: {e}")
+                    
                     print("Module hydration completed")
                     
                     # Seed additional required data
