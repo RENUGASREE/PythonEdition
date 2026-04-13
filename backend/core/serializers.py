@@ -357,8 +357,14 @@ class LessonSerializer(serializers.ModelSerializer):
         return quiz_data
 
     def get_challenges(self, obj):
-        challenges = Challenge.objects.filter(lesson_id=obj.id)
-        return ChallengeSerializer(challenges, many=True).data
+        _CHALLENGE_FIELDS = ('id', 'lesson_id', 'title', 'description', 'initial_code', 'solution_code', 'test_cases', 'points', 'difficulty')
+        try:
+            challenges = Challenge.objects.filter(lesson_id=obj.id).only(*_CHALLENGE_FIELDS)
+            return ChallengeSerializer(challenges, many=True).data
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Error fetching challenges for lesson {obj.id}: {e}")
+            return []
     
     def get_module(self, obj):
         module = Module.objects.filter(id=obj.module_id).first()

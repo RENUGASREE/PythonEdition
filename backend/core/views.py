@@ -863,7 +863,27 @@ class LessonViewSet(viewsets.ModelViewSet):
         except Exception as e:
             logger.error(f"Error generating quiz for lesson {lesson.id}: {e}")
         serializer = self.get_serializer(lesson)
-        return Response(serializer.data)
+        try:
+            return Response(serializer.data)
+        except Exception as e:
+            logger.error(f"Error serializing lesson {lesson.id}: {e}")
+            return Response({
+                "id": lesson.id,
+                "title": lesson.title,
+                "content": lesson.content or "",
+                "moduleId": lesson.module_id,
+                "order": lesson.order,
+                "difficulty": lesson.difficulty,
+                "duration": lesson.duration,
+                "slug": lesson.slug,
+                "quizzes": [],
+                "challenges": [],
+                "unlocked": True,
+                "completed": False,
+                "nextLessonId": None,
+                "previousLessonId": None,
+                "module": None,
+            })
 
 class QuizViewSet(viewsets.ModelViewSet):
     queryset = Quiz.objects.all()
@@ -876,9 +896,24 @@ class QuestionViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAdminUser,)
 
 class ChallengeViewSet(viewsets.ModelViewSet):
+    _SAFE_FIELDS = ('id', 'lesson_id', 'title', 'description', 'initial_code', 'solution_code', 'test_cases', 'points', 'difficulty')
     queryset = Challenge.objects.all()
     serializer_class = ChallengeSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        try:
+            return Challenge.objects.only(*self._SAFE_FIELDS)
+        except Exception as e:
+            logger.error(f"ChallengeViewSet.get_queryset failed: {e}")
+            return Challenge.objects.none()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            return super().list(request, *args, **kwargs)
+        except Exception as e:
+            logger.error(f"ChallengeViewSet.list 500: {e}")
+            return Response({'message': 'Failed to load challenges. Please try again later.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 
 class UserProgressViewSet(viewsets.ModelViewSet):
