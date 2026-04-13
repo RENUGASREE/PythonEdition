@@ -16,7 +16,7 @@ class CoreConfig(AppConfig):
     def ready(self):
         # Auto-run migrations, superuser creation, and data seeding on startup
         # This ensures database is properly initialized on deployment
-        if os.environ.get('RUN_AUTO_STARTUP', 'false').lower() in ('1', 'true', 'yes'):
+        if os.environ.get('RUN_AUTO_STARTUP', 'true').lower() in ('1', 'true', 'yes'):
             try:
                 # Run migrations to create database tables
                 print("Running database migrations...")
