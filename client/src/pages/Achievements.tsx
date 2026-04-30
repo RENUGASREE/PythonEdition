@@ -7,6 +7,8 @@ import { Layout } from "@/components/Layout";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiUrl, getAccessToken } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
 
 const iconMap: Record<string, any> = {
   Star,
@@ -43,7 +45,19 @@ export default function Achievements() {
   const totalAchievements = achievements.length;
   const currentStreak = summary?.streak?.current ?? user?.stats?.streak ?? 0;
 
-  const categories = ["All", "Beginner", "Challenges", "Consistency", "Progress", "Mastery"];
+  const { data: certificates } = useQuery({
+    queryKey: ["/api/certificates"],
+    queryFn: async () => {
+      const accessToken = getAccessToken();
+      const res = await fetch(apiUrl("/certificates/"), {
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+      });
+      if (!res.ok) return [];
+      return res.json();
+    },
+  });
+
+  const categories = ["All", "Beginner", "Challenges", "Consistency", "Progress", "Mastery", "Certificates"];
 
   const filteredAchievements = selectedCategory === "All" 
     ? achievements 
@@ -121,7 +135,40 @@ export default function Achievements() {
 
         {/* Achievements Grid */}
         <div className="grid gap-4 md:grid-cols-2">
-          {filteredAchievements.length === 0 ? (
+          {selectedCategory === "Certificates" ? (
+            !certificates || certificates.length === 0 ? (
+              <Card className="col-span-full">
+                <CardContent className="p-6 text-sm text-muted-foreground">
+                  No certificates earned yet. Complete modules to earn certificates.
+                </CardContent>
+              </Card>
+            ) : (
+              certificates.map((cert: any) => (
+                <Card key={cert.id} className="border-primary/20">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="p-2 rounded-lg bg-yellow-500/10 text-yellow-500">
+                        <Award className="w-6 h-6" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="font-semibold text-lg">{cert.module}</h3>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Issued on: {new Date(cert.issued_at).toLocaleDateString()}
+                        </p>
+                        <Link href={cert.pdf_path}>
+                          <Button variant="outline" className="w-full sm:w-auto">
+                            View Certificate
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )
+          ) : filteredAchievements.length === 0 ? (
             <Card className="col-span-full">
               <CardContent className="p-6 text-sm text-muted-foreground">
                 No achievements yet. Complete lessons to unlock your first badge.

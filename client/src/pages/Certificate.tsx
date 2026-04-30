@@ -11,7 +11,7 @@ import { Loader2 } from "lucide-react";
 
 export default function Certificate() {
   const { id } = useParams();
-  const moduleId = Number(id);
+  const moduleId = isNaN(Number(id)) ? id : Number(id);
   const { user } = useAuth();
   const { data: modules, isLoading: loadingModules } = useModules();
   const { data: certificates, isLoading: loadingCertificates } = useQuery({
@@ -47,7 +47,7 @@ export default function Certificate() {
     );
   }
 
-  if (!moduleId || !module) {
+  if (!id || !module) {
     return (
       <Layout>
         <div className="max-w-xl mx-auto py-16 px-4 text-center">
@@ -85,7 +85,7 @@ export default function Certificate() {
                   AI VERIFIED LEARNING
                 </div>
                 <div className="bg-[#c5a059] px-3 py-0.5 text-[9px] font-bold text-[#1a2b4b] text-center">
-                  SKILL LEVEL: {user?.level?.toUpperCase() || "PRO"}
+                  SKILL LEVEL: PRO
                 </div>
               </div>
             </div>
@@ -189,7 +189,7 @@ export default function Certificate() {
           </Link>
           <Button onClick={() => window.print()} className="px-8">Print certificate</Button>
           <Button 
-            className="px-8 bg-[#1a2b4b] hover:bg-[#1a2b4b]/90"
+            className="px-8 bg-[#1a2b4b] hover:bg-[#1a2b4b]/90 text-white"
             onClick={async () => {
               try {
                 const accessToken = getAccessToken();
