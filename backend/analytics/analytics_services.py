@@ -47,13 +47,14 @@ def mastery_progression(user: User):
             from collections import defaultdict
             weekly_scores = defaultdict(list)
             for prog in lesson_progress:
-                week_key = (prog.completed_at.year, prog.completed_at.isocalendar()[1])
+                iso_year, iso_week, _ = prog.completed_at.isocalendar()
+                week_key = (iso_year, iso_week)
                 weekly_scores[week_key].append(prog.score)
             
             for (year, week), scores in sorted(weekly_scores.items()):
                 avg_score = sum(scores) / len(scores)
-                # Use Monday of that week as timestamp
-                week_date = datetime.strptime(f"{year} {week} 1", "%Y %W %w")
+                # Use Monday of that ISO week as timestamp
+                week_date = datetime.fromisocalendar(year, week, 1)
                 entries.append({
                     "created_at": make_aware(week_date),
                     "overall_score": avg_score / 100.0,

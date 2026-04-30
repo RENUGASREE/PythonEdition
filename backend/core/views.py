@@ -958,9 +958,6 @@ class UserProgressViewSet(viewsets.ModelViewSet):
                 mastery_before = float((user.mastery_vector or {}).get(topic, 0)) if topic else None
                 log_assessment_interaction(user, topic, True, float(time_spent or 0), int(hints_used or 0), "lesson")
                 update_engagement(user, 0.02)
-                add_xp(user, 10, "Lesson completed")
-                update_streak(user)
-                mastery_after = None
                 if score is not None:
                     mastery_after = update_user_mastery(user, lesson.module_id, float(score), "lesson", topic=topic)
                 if mastery_after is None and topic:
@@ -1008,8 +1005,6 @@ class UserProgressViewSet(viewsets.ModelViewSet):
                         completed=True,
                     ).count()
                     total_completed = UserProgress.objects.filter(user_id=user_id, completed=True).count()
-                    if total_completed >= 10:
-                        award_badge(user, "consistent-learner")
                     if completed_count == len(lesson_ids):
                         module = Module.objects.filter(id=lesson.module_id).first()
                         module_title = module.title if module else f"Module {lesson.module_id}"

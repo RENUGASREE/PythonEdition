@@ -61,7 +61,7 @@ export function AdaptiveProvider({ children }: { children: React.ReactNode }) {
       
       return { recommendation, analytics, metrics };
     },
-    enabled: isAuthenticated && hasCompletedQuiz,
+    enabled: isAuthenticated,
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 

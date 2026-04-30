@@ -12,6 +12,9 @@ class CoreConfig(AppConfig):
     name = 'core'
 
     def ready(self):
+        # Import signals to register them
+        import core.signals
+        
         # Automatically seed curriculum content and/or create a superuser in production.
         # Only run in a server runtime (gunicorn/runserver), not during migrations or management commands.
         if any(arg in sys.argv for arg in ("makemigrations", "migrate", "collectstatic", "test", "shell")):
