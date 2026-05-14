@@ -9,6 +9,16 @@ export interface User {
   masteryVector: Record<string, any>;
   engagement_score: number;
   level?: string;
+  profileImageUrl?: string;
+  stats?: {
+    completedLessons: number;
+    totalPoints: number;
+    streak: number;
+    weeklyGoal: number;
+    weeklyProgress: number;
+  };
+  achievements?: any[];
+  createdAt?: string;
 }
 
 export interface Module {

@@ -9,11 +9,11 @@ export function apiUrl(path: string): string {
   // Ensure API routes have a trailing slash to avoid Django redirects that can strip
   // Authorization headers on cross-origin redirects.
   // Preserve query strings / fragments when adding the trailing slash.
-  const match = result.match(/^(?<base>[^?#]*)(?<suffix>[?#].*)?$/);
+  const match = result.match(/^([^?#]*)([?#].*)?$/);
   if (!match) return result;
 
-  const base = match.groups?.base ?? result;
-  const suffix = match.groups?.suffix ?? "";
+  const base = match[1] ?? result;
+  const suffix = match[2] ?? "";
   const baseWithSlash = base.endsWith("/") ? base : `${base}/`;
   return `${baseWithSlash}${suffix}`;
 }

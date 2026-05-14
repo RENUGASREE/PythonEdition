@@ -97,7 +97,7 @@ export default function Challenges() {
       try {
         setOutput("Running...");
         setError(null);
-        const result = await run.mutateAsync({ id: selected.id, code, input: "" });
+        const result = await run.mutateAsync({ id: selected.id.toString(), code, input: "" });
         // Show the actual output from code execution
         if (result.output) {
           setOutput(result.output);
@@ -139,7 +139,7 @@ export default function Challenges() {
       
       try {
         const result = await run.mutateAsync({
-          id: selected.id,
+          id: selected.id.toString(),
           code,
           input: newInputs.join('\n')
         });

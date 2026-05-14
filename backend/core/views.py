@@ -1594,6 +1594,10 @@ class AITutorView(APIView):
         try:
             if not api_key:
                 raise ValueError("Missing API key")
+            # Log key presence and first few chars safely
+            key_prefix = api_key[:12] if api_key else "NONE"
+            logger.info(f"OpenRouter Request: model={model_id}, key_prefix={key_prefix}..., len={len(api_key) if api_key else 0}")
+            
             req = urlreq.Request(endpoint, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
             timeout_seconds = int(os.environ.get("OPENAI_TIMEOUT_SECONDS", "20"))
             with urlreq.urlopen(req, timeout=timeout_seconds) as resp:

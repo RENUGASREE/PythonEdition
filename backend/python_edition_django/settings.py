@@ -19,13 +19,12 @@ import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-# Load environment variables from backend/.env (existing behavior)
+
+# Load environment variables
+# 1. Try to load from root directory (if running from root or in monorepo)
 load_dotenv(BASE_DIR.parent / ".env")
-# Also attempt to load project-root .env for local development
-try:
-    load_dotenv(BASE_DIR.parent.parent / ".env")
-except Exception:
-    pass
+# 2. Also attempt to load from backend/.env (standard Django location)
+load_dotenv(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production

@@ -19,9 +19,9 @@ export function parseInputCalls(code: string): InputCall[] {
 
   lines.forEach((line, lineNum) => {
     // Match input(...) with string or without
-    const inputMatches = line.matchAll(/input\s*\(\s*(['"`])(.*?)\1\s*\)/g);
-    
-    for (const match of inputMatches) {
+    const regex = /input\s*\(\s*(['"`])(.*?)\1\s*\)/g;
+    let match;
+    while ((match = regex.exec(line)) !== null) {
       const prompt = match[2];
       calls.push({
         index: callIndex++,

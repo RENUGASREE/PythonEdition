@@ -145,7 +145,7 @@ export default function Certificate() {
                   Verification ID
                 </div>
                 <div className="text-[10px] font-mono text-gray-700 font-bold">
-                  {certificate?.id || `PY-CERT-${module.id.toString().padStart(3, '0')}-${user?.id?.slice(0,8) || 'VERIFY'}`}
+                  {certificate?.id || `PY-CERT-${module.id.toString().padStart(3, '0')}-${user?.id?.toString().slice(0,8) || 'VERIFY'}`}
                 </div>
               </div>
 
